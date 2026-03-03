@@ -17,57 +17,74 @@
 <!-- ── Contact Form ───────────────────────────────────────────────────────── -->
 <section class="py-12 px-4">
   <div class="max-w-2xl mx-auto">
-    <!-- The form (UI only — no server submission) -->
     <div class="glass rounded-2xl p-8">
 
-      <form id="contact-form" novalidate>
+      <!-- ── The Form (UI only — validated client-side, no server submit) ── -->
+      <form id="contact-form" novalidate autocomplete="off">
+
         <div class="grid sm:grid-cols-2 gap-5 mb-5">
+
           <!-- Name -->
           <div>
-            <label for="contact-name" class="form-label">Full Name <span class="text-red-400">*</span></label>
+            <label for="contact-name" class="form-label">
+              Full Name <span class="text-red-400">*</span>
+            </label>
             <input
               id="contact-name"
+              name="name"
               type="text"
               class="form-input"
               placeholder="John Doe"
               autocomplete="name"
+              minlength="2"
             />
           </div>
 
           <!-- Email -->
           <div>
-            <label for="contact-email" class="form-label">Email Address <span class="text-red-400">*</span></label>
+            <label for="contact-email" class="form-label">
+              Email Address <span class="text-red-400">*</span>
+            </label>
             <input
               id="contact-email"
+              name="email"
               type="email"
               class="form-input"
-              placeholder="john@example.com"
+              placeholder="you@example.com"
               autocomplete="email"
             />
           </div>
         </div>
 
-        <!-- Subject -->
+        <!-- Subject — text input (min 3 chars, validated by JS) -->
         <div class="mb-5">
-          <label for="contact-subject" class="form-label">Subject</label>
-          <select id="contact-subject" class="form-input">
-            <option value="">— Select a topic —</option>
-            <option>Bug Report</option>
-            <option>Feature Request</option>
-            <option>General Question</option>
-            <option>Other</option>
-          </select>
+          <label for="contact-subject" class="form-label">
+            Subject <span class="text-red-400">*</span>
+          </label>
+          <input
+            id="contact-subject"
+            name="subject"
+            type="text"
+            class="form-input"
+            placeholder="e.g. Bug report, Feature idea, General question…"
+            minlength="3"
+          />
         </div>
 
-        <!-- Message -->
+        <!-- Message with character counter injected by JS -->
         <div class="mb-6">
-          <label for="contact-message" class="form-label">Message <span class="text-red-400">*</span></label>
+          <label for="contact-message" class="form-label">
+            Message <span class="text-red-400">*</span>
+            <span class="text-slate-600 font-normal">(min 10 characters)</span>
+          </label>
           <textarea
             id="contact-message"
+            name="message"
             rows="5"
             class="form-input resize-none"
-            placeholder="Write your message here..."
+            placeholder="Write your message here…"
           ></textarea>
+          <!-- .char-counter injected here by JS -->
         </div>
 
         <button type="submit" class="btn-gradient w-full justify-center py-3 text-base">
@@ -76,25 +93,50 @@
         </button>
       </form>
 
-      <!-- Success Message (hidden until form submitted) -->
-      <div id="contact-success" class="hidden flex-col items-center justify-center text-center py-8 gap-4">
-        <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-          <i data-lucide="check-circle" class="w-8 h-8 text-emerald-400"></i>
+      <!-- ── Animated Success Screen (hidden; shown by JS after valid submit) -->
+      <div id="contact-success" class="contact-success-wrapper">
+
+        <!-- Animated SVG checkmark -->
+        <svg class="checkmark-svg" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Faint background circle -->
+          <circle class="ck-bg" cx="36" cy="36" r="34"/>
+          <!-- Animated ring outline -->
+          <circle class="ck-ring" cx="36" cy="36" r="33"/>
+          <!-- Animated tick path -->
+          <path class="ck-check" d="M20 36 L30 46 L52 24"/>
+        </svg>
+
+        <div>
+          <h3 class="text-2xl font-bold text-white mb-2">Message Sent!</h3>
+          <p class="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
+            Thank you for reaching out. We'll get back to you as soon as possible.
+          </p>
         </div>
-        <h3 class="text-xl font-bold text-white">Message Sent!</h3>
-        <p class="text-slate-400 text-sm max-w-xs">
-          Thank you for reaching out. We'll get back to you as soon as possible.
-        </p>
+
+        <!-- Tags summarizing what was sent -->
+        <div class="flex flex-wrap justify-center gap-2 text-xs">
+          <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <i data-lucide="check" class="w-3 h-3 inline-block mr-1"></i>Received
+          </span>
+          <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400">
+            <i data-lucide="clock" class="w-3 h-3 inline-block mr-1"></i>Reply within 24h
+          </span>
+        </div>
+
+        <!-- Reset button — calls window.resetContactForm() exposed by validation.js -->
         <button
-          onclick="document.getElementById('contact-success').style.display='none'; document.getElementById('contact-form').style.display='block'; document.getElementById('contact-form').reset();"
-          class="btn-ghost text-sm mt-2"
+          type="button"
+          onclick="window.resetContactForm()"
+          class="btn-ghost text-sm mt-1"
         >
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
           Send another message
         </button>
       </div>
-    </div>
 
-    <!-- Info Cards -->
+    </div><!-- /.glass -->
+
+    <!-- ── Info Cards ─────────────────────────────────────────────────────── -->
     <div class="grid sm:grid-cols-3 gap-4 mt-8">
       <div class="glass p-5 rounded-xl text-center">
         <i data-lucide="github" class="w-6 h-6 text-slate-400 mx-auto mb-2"></i>
@@ -112,5 +154,6 @@
         <p class="text-xs text-slate-500 mt-1">Get up in minutes</p>
       </div>
     </div>
+
   </div>
 </section>

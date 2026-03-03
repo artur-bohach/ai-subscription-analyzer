@@ -403,3 +403,156 @@ body {
   border-bottom: 1px solid var(--border-glass);
   margin-bottom: 2rem;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ── Form Validation — Dynamic States, Counters & Animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Input validation states ──────────────────────────────────────────────── */
+.form-input.is-error {
+  border-color: rgba(239, 68, 68, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+  background: rgba(239, 68, 68, 0.04) !important;
+}
+.form-input.is-valid {
+  border-color: rgba(52, 211, 153, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.08) !important;
+}
+/* Preserve accessible focus rings on top of validation colors */
+.form-input.is-error:focus {
+  border-color: rgba(239, 68, 68, 0.85) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+.form-input.is-valid:focus {
+  border-color: var(--accent-purple) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* ── Label status dot ─────────────────────────────────────────────────────── */
+/* Tiny coloured circle appended to <label> by JS — green valid / red invalid */
+.field-status {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-left: 5px;
+  vertical-align: middle;
+  margin-bottom: 1px;
+  opacity: 0;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+.field-status.valid   { background-color: #34d399; opacity: 1; }
+.field-status.invalid { background-color: #f87171; opacity: 1; }
+
+/* ── Animated error message ───────────────────────────────────────────────── */
+/* Slides down from above and fades in — injected by JS after each field */
+.field-error-msg {
+  font-size: 0.73rem;
+  color: #f87171;
+  margin-top: 0.3rem;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    max-height 0.28s ease,
+    opacity    0.22s ease,
+    transform  0.22s ease;
+  line-height: 1.5;
+}
+.field-error-msg.show {
+  max-height: 5rem;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Disabled submit button ───────────────────────────────────────────────── */
+button[type="submit"]:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;  /* blocks hover effects; JS bypasses this for shake */
+  filter: grayscale(25%);
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Shake animation on invalid submit ────────────────────────────────────── */
+@keyframes shake {
+  0%,  100% { transform: translateX(0); }
+  10%        { transform: translateX(-7px); }
+  25%        { transform: translateX( 7px); }
+  38%        { transform: translateX(-5px); }
+  52%        { transform: translateX( 5px); }
+  65%        { transform: translateX(-3px); }
+  78%        { transform: translateX( 3px); }
+  90%        { transform: translateX(-1px); }
+}
+.btn-shake { animation: shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+/* ── Character counter ────────────────────────────────────────────────────── */
+.char-counter {
+  font-size: 0.7rem;
+  text-align: right;
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  transition: color 0.25s ease;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+.char-counter.warn { color: #f59e0b; }                    /* > 85 % of max */
+.char-counter.over { color: #f87171; font-weight: 600; }  /* over limit    */
+.char-counter.ok   { color: #34d399; }                    /* min satisfied */
+
+/* ── Contact success screen ───────────────────────────────────────────────── */
+.contact-success-wrapper {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  gap: 1.25rem;
+}
+.contact-success-wrapper.visible {
+  display: flex;
+  animation: successFadeUp 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes successFadeUp {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Animated SVG checkmark ───────────────────────────────────────────────── */
+.checkmark-svg {
+  width: 88px;
+  height: 88px;
+  filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));
+}
+.ck-bg {
+  fill: rgba(16, 185, 129, 0.1);
+}
+/* Circle ring that draws itself on entrance */
+.ck-ring {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 3;
+  stroke-linecap: round;
+  /* circumference of r=33: 2π×33 ≈ 207 — use 213 with a little slack */
+  stroke-dasharray: 213;
+  stroke-dashoffset: 213;
+  transform-origin: 36px 36px;
+  animation: ck-ring 0.65s cubic-bezier(0.65, 0, 0.45, 1) 0.15s forwards;
+}
+/* Tick/check that draws itself after the ring completes */
+.ck-check {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* path M20,36 L30,46 L52,24 length ≈ 45 — use 50 with slack */
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: ck-check 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.72s forwards;
+}
+@keyframes ck-ring  { to { stroke-dashoffset: 0; } }
+@keyframes ck-check { to { stroke-dashoffset: 0; } }
