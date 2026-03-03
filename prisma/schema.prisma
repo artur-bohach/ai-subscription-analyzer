@@ -1,0 +1,36 @@
+// Prisma Schema for AI Subscription Analyzer
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  passwordHash  String
+  role          String         @default("admin")
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+}
+
+model Subscription {
+  id           Int       @id @default(autoincrement())
+  name         String
+  category     String
+  cost         Decimal   @db.Decimal(10, 2)
+  currency     String    @default("EUR")
+  billingCycle String
+  startDate    DateTime
+  nextPayment  DateTime?
+  status       String    @default("active")
+  notes        String?
+  userId       Int
+  user         User      @relation(fields: [userId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

@@ -1,0 +1,203 @@
+<%
+  const { formatDateInput } = require('../../utils/helpers');
+
+  const categories = [
+    'Entertainment', 'Productivity', 'Education',
+    'Cloud & Storage', 'Music & Audio', 'AI Tools',
+    'Health & Fitness', 'News & Media', 'Other'
+  ];
+  const currencies  = ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
+  const cycles      = ['monthly', 'yearly', 'weekly'];
+  const statuses    = ['active', 'paused', 'cancelled'];
+
+  // formData may contain updated values on validation failure, else use subscription
+  const data = (formData && formData.name) ? formData : subscription;
+%>
+
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Back -->
+  <div class="mb-6">
+    <a href="/subscriptions/<%= subscription.id %>" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Back to <%= subscription.name %>
+    </a>
+  </div>
+
+  <!-- Page Title -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+      <i data-lucide="pencil" class="w-6 h-6 text-purple-400"></i>
+      Edit Subscription
+    </h1>
+    <p class="text-slate-500 text-sm mt-1">Update the details for <strong class="text-slate-300"><%= subscription.name %></strong>.</p>
+  </div>
+
+  <!-- Server-side Errors -->
+  <% if (errors && errors.length > 0) { %>
+    <div class="glass border border-red-500/30 rounded-xl p-4 mb-6 flex gap-3">
+      <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"></i>
+      <div>
+        <p class="text-sm font-semibold text-red-400 mb-1">Please fix the following errors:</p>
+        <ul class="space-y-1 text-sm text-red-300 list-disc list-inside">
+          <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+        </ul>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Form Card -->
+  <div class="glass rounded-2xl p-8">
+    <form
+      id="subscription-form"
+      action="/subscriptions/<%= subscription.id %>?_method=PUT"
+      method="POST"
+      novalidate
+    >
+
+      <!-- Name -->
+      <div class="mb-5">
+        <label for="name" class="form-label">Service Name <span class="text-red-400">*</span></label>
+        <input
+          id="name" name="name" type="text"
+          class="form-input"
+          placeholder="e.g. Netflix, Spotify, GitHub Copilot"
+          value="<%= data.name || '' %>"
+          required
+        />
+      </div>
+
+      <!-- Category + Currency -->
+      <div class="grid sm:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label for="category" class="form-label">Category <span class="text-red-400">*</span></label>
+          <select id="category" name="category" class="form-input" required>
+            <option value="">— Select category —</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat %>" <%= data.category === cat ? 'selected' : '' %>><%= cat %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label for="currency" class="form-label">Currency</label>
+          <select id="currency" name="currency" class="form-input">
+            <% currencies.forEach(cur => { %>
+              <option value="<%= cur %>" <%= (data.currency || 'EUR') === cur ? 'selected' : '' %>><%= cur %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Cost + Billing Cycle -->
+      <div class="grid sm:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label for="cost" class="form-label">Cost <span class="text-red-400">*</span></label>
+          <input
+            id="cost" name="cost" type="number"
+            class="form-input"
+            placeholder="9.99"
+            min="0.01" step="0.01"
+            value="<%= data.cost ? Number(data.cost).toFixed(2) : '' %>"
+            required
+          />
+        </div>
+        <div>
+          <label for="billingCycle" class="form-label">Billing Cycle <span class="text-red-400">*</span></label>
+          <select id="billingCycle" name="billingCycle" class="form-input" required>
+            <option value="">— Select cycle —</option>
+            <% cycles.forEach(c => { %>
+              <option value="<%= c %>" <%= data.billingCycle === c ? 'selected' : '' %>><%= c %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Start Date + Status -->
+      <div class="grid sm:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label for="startDate" class="form-label">Start Date <span class="text-red-400">*</span></label>
+          <input
+            id="startDate" name="startDate" type="date"
+            class="form-input"
+            value="<%= data.startDate ? formatDateInput(data.startDate) : '' %>"
+            required
+          />
+        </div>
+        <div>
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-input">
+            <% statuses.forEach(s => { %>
+              <option value="<%= s %>" <%= (data.status || 'active') === s ? 'selected' : '' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="mb-8">
+        <label for="notes" class="form-label">Notes <span class="text-slate-600">(optional)</span></label>
+        <textarea
+          id="notes" name="notes"
+          rows="3"
+          class="form-input resize-none"
+          placeholder="Any notes about this subscription..."
+        ><%= data.notes || '' %></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4">
+        <button type="submit" class="btn-gradient flex-1 justify-center py-3">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          Save Changes
+        </button>
+        <a href="/subscriptions/<%= subscription.id %>" class="btn-ghost py-3 px-6">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="glass border border-red-500/15 rounded-2xl p-6 mt-6">
+    <h3 class="text-sm font-semibold text-red-400 mb-1 flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+      Danger Zone
+    </h3>
+    <p class="text-xs text-slate-500 mb-4">Permanently delete this subscription. This cannot be undone.</p>
+    <button
+      type="button"
+      data-delete-form="delete-form-<%= subscription.id %>"
+      class="btn-danger py-2 px-4"
+    >
+      <i data-lucide="trash-2" class="w-4 h-4"></i>
+      Delete Subscription
+    </button>
+    <form
+      id="delete-form-<%= subscription.id %>"
+      action="/subscriptions/<%= subscription.id %>?_method=DELETE"
+      method="POST"
+      style="display:none;"
+    ></form>
+  </div>
+</div>
+
+<!-- ── Delete Confirmation Modal ─────────────────────────────────────────── -->
+<div id="delete-modal" class="modal-backdrop" style="display:none;">
+  <div class="modal-box">
+    <div class="text-center">
+      <div class="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-5">
+        <i data-lucide="trash-2" class="w-7 h-7 text-red-400"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">Delete "<%= subscription.name %>"?</h3>
+      <p class="text-slate-400 text-sm mb-6">
+        This action cannot be undone. The subscription will be permanently deleted.
+      </p>
+      <div class="flex gap-3 justify-center">
+        <button id="cancel-delete" class="btn-ghost px-6 py-2.5 flex-1">Cancel</button>
+        <button id="confirm-delete" class="btn-danger px-6 py-2.5 flex-1 justify-center">
+          <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

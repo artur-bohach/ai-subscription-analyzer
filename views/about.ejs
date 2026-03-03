@@ -1,0 +1,131 @@
+<!-- ── About Header ───────────────────────────────────────────────────────── -->
+<section class="pt-16 pb-12 px-4">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-purple-500/20 text-sm text-purple-300 font-medium mb-6">
+      <i data-lucide="info" class="w-4 h-4"></i>
+      About the Project
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-5">
+      Built for <span class="gradient-text">financial clarity</span>
+    </h1>
+    <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+      AI Subscription Analyzer is an open-source web application that helps you track,
+      manage and optimize your recurring digital subscriptions — all in one clean, modern interface.
+    </p>
+  </div>
+</section>
+
+<!-- ── Tech Stack ─────────────────────────────────────────────────────────── -->
+<section class="py-16 px-4">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-2xl font-bold text-white text-center mb-10">
+      <span class="gradient-text">Technology</span> Stack
+    </h2>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <%
+        const techs = [
+          { icon: 'server',      name: 'Node.js + Express',  desc: 'Fast, minimalist web server',         color: 'from-green-600/30 to-green-600/5',  border: 'border-green-500/20', text: 'text-green-400' },
+          { icon: 'file-code',   name: 'EJS Templates',      desc: 'Server-side rendering engine',         color: 'from-yellow-600/30 to-yellow-600/5', border: 'border-yellow-500/20', text: 'text-yellow-400' },
+          { icon: 'database',    name: 'PostgreSQL',          desc: 'Robust relational database',           color: 'from-blue-600/30 to-blue-600/5',    border: 'border-blue-500/20',  text: 'text-blue-400' },
+          { icon: 'layers',      name: 'Prisma ORM',         desc: 'Type-safe database client',            color: 'from-indigo-600/30 to-indigo-600/5', border: 'border-indigo-500/20', text: 'text-indigo-400' },
+          { icon: 'palette',     name: 'Tailwind CSS 4',     desc: 'Utility-first CSS framework',          color: 'from-cyan-600/30 to-cyan-600/5',    border: 'border-cyan-500/20',  text: 'text-cyan-400' },
+          { icon: 'code',        name: 'Vanilla JavaScript', desc: 'Interactive client-side logic',        color: 'from-orange-600/30 to-orange-600/5', border: 'border-orange-500/20', text: 'text-orange-400' }
+        ];
+      %>
+      <% techs.forEach(t => { %>
+        <div class="glass glass-hover p-5 rounded-xl flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br <%= t.color %> border <%= t.border %> flex items-center justify-center flex-shrink-0">
+            <i data-lucide="<%= t.icon %>" class="w-5 h-5 <%= t.text %>"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white text-sm mb-0.5"><%= t.name %></h3>
+            <p class="text-xs text-slate-500"><%= t.desc %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features List ──────────────────────────────────────────────────────── -->
+<section class="py-16 px-4">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-2xl font-bold text-white text-center mb-10">
+      What's <span class="gradient-text">Included</span>
+    </h2>
+
+    <div class="glass p-8 rounded-2xl space-y-4">
+      <%
+        const features = [
+          'Full CRUD for subscriptions (create, read, update, delete)',
+          'Real-time monthly & yearly spending calculations',
+          'Billing cycle normalization (weekly → monthly → yearly)',
+          'Multi-currency support (EUR, USD, GBP and more)',
+          'Category-based organization with icons',
+          'Status tracking: active, paused, cancelled',
+          'Next payment date auto-calculation',
+          'Responsive glassmorphism UI with dark theme',
+          'Client-side form validation',
+          'Flash notifications for user feedback',
+          'Session & authentication scaffold (ready for FR5)',
+          'PostgreSQL database with Prisma ORM',
+          '404 & 500 error pages'
+        ];
+      %>
+      <% features.forEach(f => { %>
+        <div class="flex items-center gap-3 text-slate-300 text-sm">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+          <%= f %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+<section class="py-16 px-4">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-2xl font-bold text-white text-center mb-10">
+      Frequently Asked <span class="gradient-text">Questions</span>
+    </h2>
+
+    <div class="space-y-3">
+      <%
+        const faqs = [
+          {
+            q: 'Is my subscription data stored securely?',
+            a: 'Yes. All data is stored in a private PostgreSQL database. The application runs on your own infrastructure — no data is sent to third-party services.'
+          },
+          {
+            q: 'Can I track subscriptions in different currencies?',
+            a: 'Absolutely. Each subscription can have its own currency (EUR, USD, GBP, JPY, etc.). The summary totals use the stored values as-is — currency conversion is a planned enhancement.'
+          },
+          {
+            q: 'How is the monthly cost calculated for yearly plans?',
+            a: 'Yearly costs are divided by 12 to get a monthly equivalent. Weekly costs are multiplied by 4.33 (average weeks per month). This gives you a normalized view of all your spending.'
+          },
+          {
+            q: 'Can multiple users share the application?',
+            a: 'The authentication scaffold is included but auth enforcement is optional. Full multi-user support with role-based access control is planned for the next release (FR5).'
+          },
+          {
+            q: 'How do I add test data to the database?',
+            a: 'Run `node seed.js` after setting up the database. It will create an admin user (admin/admin123) and 10 sample subscriptions across different categories.'
+          }
+        ];
+      %>
+      <% faqs.forEach((faq, i) => { %>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><%= faq.q %></span>
+            <i data-lucide="chevron-down" class="w-5 h-5 faq-arrow flex-shrink-0 ml-4"></i>
+          </button>
+          <div class="faq-answer">
+            <%= faq.a %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,30 @@
+<!-- Flash Messages (toast-style, top-right, auto-dismiss via JS) -->
+<% if ((success && success.length > 0) || (error && error.length > 0)) { %>
+<div class="flash-container" aria-live="polite">
+
+  <% if (success && success.length > 0) { %>
+    <% success.forEach(msg => { %>
+      <div class="flash flash-success" role="alert">
+        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        <span><%= msg %></span>
+        <button class="flash-close" aria-label="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    <% }) %>
+  <% } %>
+
+  <% if (error && error.length > 0) { %>
+    <% error.forEach(msg => { %>
+      <div class="flash flash-error" role="alert">
+        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        <span><%= msg %></span>
+        <button class="flash-close" aria-label="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    <% }) %>
+  <% } %>
+
+</div>
+<% } %>

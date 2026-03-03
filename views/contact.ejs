@@ -1,0 +1,116 @@
+<!-- ── Contact Header ─────────────────────────────────────────────────────── -->
+<section class="pt-16 pb-8 px-4">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-purple-500/20 text-sm text-purple-300 font-medium mb-6">
+      <i data-lucide="mail" class="w-4 h-4"></i>
+      Get In Touch
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
+      Contact <span class="gradient-text">Us</span>
+    </h1>
+    <p class="text-slate-400 text-lg">
+      Have a question or feedback? We'd love to hear from you.
+    </p>
+  </div>
+</section>
+
+<!-- ── Contact Form ───────────────────────────────────────────────────────── -->
+<section class="py-12 px-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- The form (UI only — no server submission) -->
+    <div class="glass rounded-2xl p-8">
+
+      <form id="contact-form" novalidate>
+        <div class="grid sm:grid-cols-2 gap-5 mb-5">
+          <!-- Name -->
+          <div>
+            <label for="contact-name" class="form-label">Full Name <span class="text-red-400">*</span></label>
+            <input
+              id="contact-name"
+              type="text"
+              class="form-input"
+              placeholder="John Doe"
+              autocomplete="name"
+            />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="contact-email" class="form-label">Email Address <span class="text-red-400">*</span></label>
+            <input
+              id="contact-email"
+              type="email"
+              class="form-input"
+              placeholder="john@example.com"
+              autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <!-- Subject -->
+        <div class="mb-5">
+          <label for="contact-subject" class="form-label">Subject</label>
+          <select id="contact-subject" class="form-input">
+            <option value="">— Select a topic —</option>
+            <option>Bug Report</option>
+            <option>Feature Request</option>
+            <option>General Question</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <!-- Message -->
+        <div class="mb-6">
+          <label for="contact-message" class="form-label">Message <span class="text-red-400">*</span></label>
+          <textarea
+            id="contact-message"
+            rows="5"
+            class="form-input resize-none"
+            placeholder="Write your message here..."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn-gradient w-full justify-center py-3 text-base">
+          <i data-lucide="send" class="w-5 h-5"></i>
+          Send Message
+        </button>
+      </form>
+
+      <!-- Success Message (hidden until form submitted) -->
+      <div id="contact-success" class="hidden flex-col items-center justify-center text-center py-8 gap-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+          <i data-lucide="check-circle" class="w-8 h-8 text-emerald-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Message Sent!</h3>
+        <p class="text-slate-400 text-sm max-w-xs">
+          Thank you for reaching out. We'll get back to you as soon as possible.
+        </p>
+        <button
+          onclick="document.getElementById('contact-success').style.display='none'; document.getElementById('contact-form').style.display='block'; document.getElementById('contact-form').reset();"
+          class="btn-ghost text-sm mt-2"
+        >
+          Send another message
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="grid sm:grid-cols-3 gap-4 mt-8">
+      <div class="glass p-5 rounded-xl text-center">
+        <i data-lucide="github" class="w-6 h-6 text-slate-400 mx-auto mb-2"></i>
+        <p class="text-sm font-medium text-white">GitHub</p>
+        <p class="text-xs text-slate-500 mt-1">Open an issue</p>
+      </div>
+      <div class="glass p-5 rounded-xl text-center">
+        <i data-lucide="book-open" class="w-6 h-6 text-purple-400 mx-auto mb-2"></i>
+        <p class="text-sm font-medium text-white">Docs</p>
+        <p class="text-xs text-slate-500 mt-1">Read the README</p>
+      </div>
+      <div class="glass p-5 rounded-xl text-center">
+        <i data-lucide="zap" class="w-6 h-6 text-yellow-400 mx-auto mb-2"></i>
+        <p class="text-sm font-medium text-white">Quick Start</p>
+        <p class="text-xs text-slate-500 mt-1">Get up in minutes</p>
+      </div>
+    </div>
+  </div>
+</section>
