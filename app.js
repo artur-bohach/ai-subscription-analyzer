@@ -6,9 +6,18 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const path = require('path');
+const helpers = require('./utils/helpers');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ─── Global Template Helpers (available in every EJS view via app.locals) ──────
+app.locals.formatDateDisplay  = helpers.formatDateDisplay;
+app.locals.formatDateInput    = helpers.formatDateInput;
+app.locals.formatCurrency     = helpers.formatCurrency;
+app.locals.normalizeToMonthly = helpers.normalizeToMonthly;
+app.locals.getCategoryIcon    = helpers.getCategoryIcon;
+app.locals.getStatusClasses   = helpers.getStatusClasses;
 
 // ─── View Engine ───────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
