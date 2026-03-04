@@ -1,15 +1,17 @@
 <%
+  const fe = fieldErrors || {};   // shorthand
+  const data = (formData && formData.name) ? formData : subscription;
+
   const categories = [
     'Entertainment', 'Productivity', 'Education',
     'Cloud & Storage', 'Music & Audio', 'AI Tools',
-    'Health & Fitness', 'News & Media', 'Other'
+    'Health & Fitness', 'News & Media', 'Other',
   ];
-  const currencies  = ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
-  const cycles      = ['monthly', 'yearly', 'weekly'];
-  const statuses    = ['active', 'paused', 'cancelled'];
+  const currencies = ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
+  const cycles     = ['monthly', 'yearly', 'weekly'];
+  const statuses   = ['active', 'paused', 'cancelled'];
 
-  // formData may contain updated values on validation failure, else use subscription
-  const data = (formData && formData.name) ? formData : subscription;
+  const errorCount = Object.keys(fe).length;
 %>
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -31,16 +33,13 @@
     <p class="text-slate-500 text-sm mt-1">Update the details for <strong class="text-slate-300"><%= subscription.name %></strong>.</p>
   </div>
 
-  <!-- Server-side Errors -->
-  <% if (errors && errors.length > 0) { %>
-    <div class="glass border border-red-500/30 rounded-xl p-4 mb-6 flex gap-3">
+  <!-- Server-side error summary banner -->
+  <% if (errorCount > 0) { %>
+    <div class="glass border border-red-500/30 rounded-xl p-4 mb-6 flex gap-3" role="alert">
       <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"></i>
-      <div>
-        <p class="text-sm font-semibold text-red-400 mb-1">Please fix the following errors:</p>
-        <ul class="space-y-1 text-sm text-red-300 list-disc list-inside">
-          <% errors.forEach(e => { %><li><%= e %></li><% }) %>
-        </ul>
-      </div>
+      <p class="text-sm font-semibold text-red-400">
+        Please fix <%= errorCount %> error<%= errorCount !== 1 ? 's' : '' %> below before continuing.
+      </p>
     </div>
   <% } %>
 
@@ -58,23 +57,25 @@
         <label for="name" class="form-label">Service Name <span class="text-red-400">*</span></label>
         <input
           id="name" name="name" type="text"
-          class="form-input"
+          class="form-input <%= fe.name ? 'is-error' : '' %>"
           placeholder="e.g. Netflix, Spotify, GitHub Copilot"
           value="<%= data.name || '' %>"
           required
         />
+        <% if (fe.name) { %><p class="field-error-msg show">⚠ <%= fe.name %></p><% } %>
       </div>
 
       <!-- Category + Currency -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
           <label for="category" class="form-label">Category <span class="text-red-400">*</span></label>
-          <select id="category" name="category" class="form-input" required>
+          <select id="category" name="category" class="form-input <%= fe.category ? 'is-error' : '' %>" required>
             <option value="">— Select category —</option>
             <% categories.forEach(cat => { %>
               <option value="<%= cat %>" <%= data.category === cat ? 'selected' : '' %>><%= cat %></option>
             <% }) %>
           </select>
+          <% if (fe.category) { %><p class="field-error-msg show">⚠ <%= fe.category %></p><% } %>
         </div>
         <div>
           <label for="currency" class="form-label">Currency</label>
@@ -92,21 +93,22 @@
           <label for="cost" class="form-label">Cost <span class="text-red-400">*</span></label>
           <input
             id="cost" name="cost" type="number"
-            class="form-input"
-            placeholder="9.99"
-            min="0.01" step="0.01"
+            class="form-input <%= fe.cost ? 'is-error' : '' %>"
+            placeholder="9.99" min="0.01" step="0.01"
             value="<%= data.cost ? Number(data.cost).toFixed(2) : '' %>"
             required
           />
+          <% if (fe.cost) { %><p class="field-error-msg show">⚠ <%= fe.cost %></p><% } %>
         </div>
         <div>
           <label for="billingCycle" class="form-label">Billing Cycle <span class="text-red-400">*</span></label>
-          <select id="billingCycle" name="billingCycle" class="form-input" required>
+          <select id="billingCycle" name="billingCycle" class="form-input <%= fe.billingCycle ? 'is-error' : '' %>" required>
             <option value="">— Select cycle —</option>
             <% cycles.forEach(c => { %>
               <option value="<%= c %>" <%= data.billingCycle === c ? 'selected' : '' %>><%= c %></option>
             <% }) %>
           </select>
+          <% if (fe.billingCycle) { %><p class="field-error-msg show">⚠ <%= fe.billingCycle %></p><% } %>
         </div>
       </div>
 
@@ -116,18 +118,20 @@
           <label for="startDate" class="form-label">Start Date <span class="text-red-400">*</span></label>
           <input
             id="startDate" name="startDate" type="date"
-            class="form-input"
+            class="form-input <%= fe.startDate ? 'is-error' : '' %>"
             value="<%= data.startDate ? formatDateInput(data.startDate) : '' %>"
             required
           />
+          <% if (fe.startDate) { %><p class="field-error-msg show">⚠ <%= fe.startDate %></p><% } %>
         </div>
         <div>
           <label for="status" class="form-label">Status</label>
-          <select id="status" name="status" class="form-input">
+          <select id="status" name="status" class="form-input <%= fe.status ? 'is-error' : '' %>">
             <% statuses.forEach(s => { %>
               <option value="<%= s %>" <%= (data.status || 'active') === s ? 'selected' : '' %>><%= s %></option>
             <% }) %>
           </select>
+          <% if (fe.status) { %><p class="field-error-msg show">⚠ <%= fe.status %></p><% } %>
         </div>
       </div>
 
@@ -137,9 +141,10 @@
         <textarea
           id="notes" name="notes"
           rows="3"
-          class="form-input resize-none"
-          placeholder="Any notes about this subscription..."
+          class="form-input resize-none <%= fe.notes ? 'is-error' : '' %>"
+          placeholder="Any notes about this subscription…"
         ><%= data.notes || '' %></textarea>
+        <% if (fe.notes) { %><p class="field-error-msg show">⚠ <%= fe.notes %></p><% } %>
       </div>
 
       <!-- Actions -->
@@ -148,9 +153,7 @@
           <i data-lucide="save" class="w-4 h-4"></i>
           Save Changes
         </button>
-        <a href="/subscriptions/<%= subscription.id %>" class="btn-ghost py-3 px-6">
-          Cancel
-        </a>
+        <a href="/subscriptions/<%= subscription.id %>" class="btn-ghost py-3 px-6">Cancel</a>
       </div>
     </form>
   </div>

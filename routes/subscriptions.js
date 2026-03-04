@@ -1,12 +1,15 @@
 const express = require('express');
-const router = express.Router();
-const { getPrismaClient } = require('../utils/helpers');
+const router  = express.Router();
+
 const {
+  getPrismaClient,
   normalizeToMonthly,
   formatCurrency,
   calculateNextPayment,
-  getCategoryIcon
+  getCategoryIcon,
 } = require('../utils/helpers');
+
+const { validateSubscription } = require('../utils/validators');
 
 const prisma = getPrismaClient();
 
@@ -17,25 +20,24 @@ const DEFAULT_USER_ID = 1;
 router.get('/', async (req, res) => {
   try {
     const subscriptions = await prisma.subscription.findMany({
-      where: { userId: DEFAULT_USER_ID },
-      orderBy: { createdAt: 'desc' }
+      where:   { userId: DEFAULT_USER_ID },
+      orderBy: { createdAt: 'desc' },
     });
 
-    // Calculate summary stats
-    const active = subscriptions.filter(s => s.status === 'active');
-    const monthlyTotal = active.reduce((sum, s) => {
-      return sum + normalizeToMonthly(Number(s.cost), s.billingCycle);
-    }, 0);
+    const active       = subscriptions.filter(s => s.status === 'active');
+    const monthlyTotal = active.reduce(
+      (sum, s) => sum + normalizeToMonthly(Number(s.cost), s.billingCycle), 0
+    );
 
     res.render('subscriptions/index', {
-      title: 'My Subscriptions',
+      title:        'My Subscriptions',
       subscriptions,
       monthlyTotal: monthlyTotal.toFixed(2),
-      yearlyTotal: (monthlyTotal * 12).toFixed(2),
-      activeCount: active.length,
+      yearlyTotal:  (monthlyTotal * 12).toFixed(2),
+      activeCount:  active.length,
       formatCurrency,
       getCategoryIcon,
-      normalizeToMonthly
+      normalizeToMonthly,
     });
   } catch (err) {
     console.error('Error fetching subscriptions:', err);
@@ -47,60 +49,54 @@ router.get('/', async (req, res) => {
 // ─── GET /subscriptions/new ─────────────────────────────────────────────────────
 router.get('/new', (req, res) => {
   res.render('subscriptions/new', {
-    title: 'Add Subscription',
-    formData: {},
-    errors: []
+    title:       'Add Subscription',
+    formData:    {},
+    fieldErrors: {},
   });
 });
 
 // ─── POST /subscriptions — create ──────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { name, category, cost, currency, billingCycle, startDate, status, notes } = req.body;
+  // Validate + sanitize (includes async duplicate-name check)
+  const result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID);
 
-  // Server-side validation
-  const errors = [];
-  if (!name || name.trim() === '') errors.push('Name is required.');
-  if (!category) errors.push('Category is required.');
-  if (!cost || isNaN(cost) || Number(cost) <= 0) errors.push('Cost must be a positive number.');
-  if (!billingCycle) errors.push('Billing cycle is required.');
-  if (!startDate) errors.push('Start date is required.');
-
-  if (errors.length > 0) {
-    return res.render('subscriptions/new', {
-      title: 'Add Subscription',
-      formData: req.body,
-      errors
+  if (!result.isValid) {
+    return res.status(422).render('subscriptions/new', {
+      title:       'Add Subscription',
+      formData:    req.body,      // repopulate form with user's raw input
+      fieldErrors: result.errors,
     });
   }
 
   try {
-    const parsedStart = new Date(startDate);
-    const nextPayment = calculateNextPayment(parsedStart, billingCycle);
+    const { sanitized } = result;
+    const parsedStart = new Date(sanitized.startDate + 'T00:00:00');
+    const nextPayment = calculateNextPayment(parsedStart, sanitized.billingCycle);
 
     await prisma.subscription.create({
       data: {
-        name: name.trim(),
-        category,
-        cost: parseFloat(cost),
-        currency: currency || 'EUR',
-        billingCycle,
-        startDate: parsedStart,
+        name:         sanitized.name,
+        category:     sanitized.category,
+        cost:         sanitized.cost,
+        currency:     sanitized.currency,
+        billingCycle: sanitized.billingCycle,
+        startDate:    parsedStart,
         nextPayment,
-        status: status || 'active',
-        notes: notes ? notes.trim() : null,
-        userId: DEFAULT_USER_ID
-      }
+        status:       sanitized.status,
+        notes:        sanitized.notes,
+        userId:       DEFAULT_USER_ID,
+      },
     });
 
-    req.flash('success', `"${name}" subscription added successfully!`);
+    req.flash('success', `"${sanitized.name}" subscription added successfully!`);
     res.redirect('/subscriptions');
   } catch (err) {
     console.error('Error creating subscription:', err);
-    req.flash('error', 'Failed to create subscription. Please try again.');
+    req.flash('error', 'Failed to save subscription. Please try again.');
     res.render('subscriptions/new', {
-      title: 'Add Subscription',
-      formData: req.body,
-      errors: ['Server error. Please try again.']
+      title:       'Add Subscription',
+      formData:    req.body,
+      fieldErrors: {},
     });
   }
 });
@@ -109,7 +105,7 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) }
+      where: { id: parseInt(req.params.id) },
     });
 
     if (!subscription) {
@@ -120,12 +116,12 @@ router.get('/:id', async (req, res) => {
     const monthly = normalizeToMonthly(Number(subscription.cost), subscription.billingCycle);
 
     res.render('subscriptions/show', {
-      title: subscription.name,
+      title:             subscription.name,
       subscription,
       monthlyEquivalent: monthly.toFixed(2),
-      yearlyEquivalent: (monthly * 12).toFixed(2),
+      yearlyEquivalent:  (monthly * 12).toFixed(2),
       formatCurrency,
-      getCategoryIcon
+      getCategoryIcon,
     });
   } catch (err) {
     console.error('Error fetching subscription:', err);
@@ -138,7 +134,7 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/edit', async (req, res) => {
   try {
     const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) }
+      where: { id: parseInt(req.params.id) },
     });
 
     if (!subscription) {
@@ -147,10 +143,10 @@ router.get('/:id/edit', async (req, res) => {
     }
 
     res.render('subscriptions/edit', {
-      title: `Edit — ${subscription.name}`,
+      title:       `Edit — ${subscription.name}`,
       subscription,
-      formData: subscription,
-      errors: []
+      formData:    subscription,  // pre-populate with current DB values
+      fieldErrors: {},
     });
   } catch (err) {
     console.error('Error loading edit form:', err);
@@ -159,62 +155,59 @@ router.get('/:id/edit', async (req, res) => {
   }
 });
 
-// ─── POST /subscriptions/:id — update (method-override PUT) ────────────────────
+// ─── PUT /subscriptions/:id — update (via method-override) ─────────────────────
 router.put('/:id', async (req, res) => {
-  const { name, category, cost, currency, billingCycle, startDate, status, notes } = req.body;
   const id = parseInt(req.params.id);
 
-  // Server-side validation
-  const errors = [];
-  if (!name || name.trim() === '') errors.push('Name is required.');
-  if (!category) errors.push('Category is required.');
-  if (!cost || isNaN(cost) || Number(cost) <= 0) errors.push('Cost must be a positive number.');
-  if (!billingCycle) errors.push('Billing cycle is required.');
-  if (!startDate) errors.push('Start date is required.');
+  // Validate + sanitize; pass excludeId so the current record is skipped in
+  // the duplicate-name check (updating the same subscription's name is fine)
+  const result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID, id);
 
-  if (errors.length > 0) {
+  if (!result.isValid) {
+    // Fetch the original subscription so the template has access to its id/name
     const subscription = await prisma.subscription.findUnique({ where: { id } });
-    return res.render('subscriptions/edit', {
-      title: `Edit — ${name}`,
+    return res.status(422).render('subscriptions/edit', {
+      title:       `Edit — ${subscription ? subscription.name : 'Subscription'}`,
       subscription,
-      formData: req.body,
-      errors
+      formData:    req.body,
+      fieldErrors: result.errors,
     });
   }
 
   try {
-    const parsedStart = new Date(startDate);
-    const nextPayment = calculateNextPayment(parsedStart, billingCycle);
+    const { sanitized } = result;
+    const parsedStart = new Date(sanitized.startDate + 'T00:00:00');
+    const nextPayment = calculateNextPayment(parsedStart, sanitized.billingCycle);
 
     await prisma.subscription.update({
       where: { id },
       data: {
-        name: name.trim(),
-        category,
-        cost: parseFloat(cost),
-        currency: currency || 'EUR',
-        billingCycle,
-        startDate: parsedStart,
+        name:         sanitized.name,
+        category:     sanitized.category,
+        cost:         sanitized.cost,
+        currency:     sanitized.currency,
+        billingCycle: sanitized.billingCycle,
+        startDate:    parsedStart,
         nextPayment,
-        status: status || 'active',
-        notes: notes ? notes.trim() : null
-      }
+        status:       sanitized.status,
+        notes:        sanitized.notes,
+      },
     });
 
-    req.flash('success', `"${name}" updated successfully!`);
+    req.flash('success', `"${sanitized.name}" updated successfully!`);
     res.redirect(`/subscriptions/${id}`);
   } catch (err) {
     console.error('Error updating subscription:', err);
-    req.flash('error', 'Failed to update subscription.');
+    req.flash('error', 'Failed to update subscription. Please try again.');
     res.redirect(`/subscriptions/${id}/edit`);
   }
 });
 
-// ─── POST /subscriptions/:id/delete — delete (method-override DELETE) ──────────
+// ─── DELETE /subscriptions/:id ─────────────────────────────────────────────────
 router.delete('/:id', async (req, res) => {
   try {
     const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) }
+      where: { id: parseInt(req.params.id) },
     });
 
     if (!subscription) {
@@ -223,7 +216,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     await prisma.subscription.delete({
-      where: { id: parseInt(req.params.id) }
+      where: { id: parseInt(req.params.id) },
     });
 
     req.flash('success', `"${subscription.name}" deleted successfully.`);
