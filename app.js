@@ -59,9 +59,9 @@ app.use((req, res, next) => {
 });
 
 // ─── Routes ────────────────────────────────────────────────────────────────────
-const indexRoutes = require('./routes/index');
+const indexRoutes        = require('./routes/index');
 const subscriptionRoutes = require('./routes/subscriptions');
-const authRoutes = require('./routes/auth');
+const authRoutes         = require('./routes/auth');
 
 app.use('/', indexRoutes);
 app.use('/subscriptions', subscriptionRoutes);
@@ -69,22 +69,39 @@ app.use('/', authRoutes);
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
-  res.status(404).render('error', {
-    title: '404 - Page Not Found',
-    statusCode: 404,
-    message: "The page you're looking for doesn't exist.",
-    layout: 'layouts/main'
+  console.warn(`[${new Date().toISOString()}] 404 ${req.method} ${req.originalUrl}`);
+  res.status(404).render('errors/404', {
+    title:  '404 — Page Not Found',
+    layout: 'layouts/main',
   });
 });
 
-// ─── Global Error Handler ──────────────────────────────────────────────────────
+// ─── Error Logger ──────────────────────────────────────────────────────────────
+// Logs every error with timestamp + request context before delegating to renderer
+app.use((err, req, _res, next) => {
+  const ts     = new Date().toISOString();
+  const status = err.status || err.statusCode || 500;
+
+  console.error(`[${ts}] ERROR ${status} ${req.method} ${req.originalUrl}`);
+  console.error(`  Message : ${err.message || 'No message'}`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(err.stack || '(no stack trace available)');
+  }
+
+  next(err);
+});
+
+// ─── 500 Error Handler ─────────────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).render('error', {
-    title: '500 - Server Error',
-    statusCode: 500,
-    message: 'Something went wrong on our end. Please try again later.',
-    layout: 'layouts/main'
+  const status = err.status || err.statusCode || 500;
+  const isDev  = process.env.NODE_ENV !== 'production';
+
+  res.status(status).render('errors/500', {
+    title:        `${status} — Server Error`,
+    layout:       'layouts/main',
+    stack:        isDev ? err.stack   : null,
+    errorMessage: isDev ? err.message : null,
   });
 });
 

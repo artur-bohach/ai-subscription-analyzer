@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const router  = express.Router();
 
@@ -16,8 +18,25 @@ const prisma = getPrismaClient();
 // Default userId for demo (FR5 auth is a stub)
 const DEFAULT_USER_ID = 1;
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Render the 404 error page with an optional contextual message. */
+function renderNotFound(res, message) {
+  return res.status(404).render('errors/404', {
+    title:   '404 — Not Found',
+    layout:  'layouts/main',
+    message: message || "The subscription you're looking for doesn't exist or has been deleted.",
+  });
+}
+
+/** Parse and validate a route :id param. Returns the integer or NaN. */
+function parseId(str) {
+  const id = parseInt(str, 10);
+  return Number.isFinite(id) ? id : NaN;
+}
+
 // ─── GET /subscriptions — list all ─────────────────────────────────────────────
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res, next) => {
   try {
     const subscriptions = await prisma.subscription.findMany({
       where:   { userId: DEFAULT_USER_ID },
@@ -40,14 +59,12 @@ router.get('/', async (req, res) => {
       normalizeToMonthly,
     });
   } catch (err) {
-    console.error('Error fetching subscriptions:', err);
-    req.flash('error', 'Failed to load subscriptions.');
-    res.redirect('/');
+    next(err);
   }
 });
 
 // ─── GET /subscriptions/new ─────────────────────────────────────────────────────
-router.get('/new', (req, res) => {
+router.get('/new', (_req, res) => {
   res.render('subscriptions/new', {
     title:       'Add Subscription',
     formData:    {},
@@ -56,14 +73,18 @@ router.get('/new', (req, res) => {
 });
 
 // ─── POST /subscriptions — create ──────────────────────────────────────────────
-router.post('/', async (req, res) => {
-  // Validate + sanitize (includes async duplicate-name check)
-  const result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID);
+router.post('/', async (req, res, next) => {
+  let result;
+  try {
+    result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID);
+  } catch (err) {
+    return next(err);
+  }
 
   if (!result.isValid) {
     return res.status(422).render('subscriptions/new', {
       title:       'Add Subscription',
-      formData:    req.body,      // repopulate form with user's raw input
+      formData:    req.body,
       fieldErrors: result.errors,
     });
   }
@@ -91,9 +112,9 @@ router.post('/', async (req, res) => {
     req.flash('success', `"${sanitized.name}" subscription added successfully!`);
     res.redirect('/subscriptions');
   } catch (err) {
-    console.error('Error creating subscription:', err);
+    // DB write failure: keep user on the form with a flash, not a 500 page
     req.flash('error', 'Failed to save subscription. Please try again.');
-    res.render('subscriptions/new', {
+    res.status(500).render('subscriptions/new', {
       title:       'Add Subscription',
       formData:    req.body,
       fieldErrors: {},
@@ -102,16 +123,13 @@ router.post('/', async (req, res) => {
 });
 
 // ─── GET /subscriptions/:id — show ─────────────────────────────────────────────
-router.get('/:id', async (req, res) => {
-  try {
-    const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
+router.get('/:id', async (req, res, next) => {
+  const id = parseId(req.params.id);
+  if (isNaN(id)) return renderNotFound(res);
 
-    if (!subscription) {
-      req.flash('error', 'Subscription not found.');
-      return res.redirect('/subscriptions');
-    }
+  try {
+    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    if (!subscription) return renderNotFound(res);
 
     const monthly = normalizeToMonthly(Number(subscription.cost), subscription.billingCycle);
 
@@ -124,50 +142,53 @@ router.get('/:id', async (req, res) => {
       getCategoryIcon,
     });
   } catch (err) {
-    console.error('Error fetching subscription:', err);
-    req.flash('error', 'Failed to load subscription.');
-    res.redirect('/subscriptions');
+    next(err);
   }
 });
 
 // ─── GET /subscriptions/:id/edit ───────────────────────────────────────────────
-router.get('/:id/edit', async (req, res) => {
-  try {
-    const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
+router.get('/:id/edit', async (req, res, next) => {
+  const id = parseId(req.params.id);
+  if (isNaN(id)) return renderNotFound(res);
 
-    if (!subscription) {
-      req.flash('error', 'Subscription not found.');
-      return res.redirect('/subscriptions');
-    }
+  try {
+    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    if (!subscription) return renderNotFound(res);
 
     res.render('subscriptions/edit', {
       title:       `Edit — ${subscription.name}`,
       subscription,
-      formData:    subscription,  // pre-populate with current DB values
+      formData:    subscription,
       fieldErrors: {},
     });
   } catch (err) {
-    console.error('Error loading edit form:', err);
-    req.flash('error', 'Failed to load subscription for editing.');
-    res.redirect('/subscriptions');
+    next(err);
   }
 });
 
 // ─── PUT /subscriptions/:id — update (via method-override) ─────────────────────
-router.put('/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
+router.put('/:id', async (req, res, next) => {
+  const id = parseId(req.params.id);
+  if (isNaN(id)) return renderNotFound(res);
 
-  // Validate + sanitize; pass excludeId so the current record is skipped in
-  // the duplicate-name check (updating the same subscription's name is fine)
-  const result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID, id);
+  let result;
+  try {
+    result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID, id);
+  } catch (err) {
+    return next(err);
+  }
 
   if (!result.isValid) {
-    // Fetch the original subscription so the template has access to its id/name
-    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    // Fetch the record so the template can render the page title and back-link
+    let subscription = null;
+    try {
+      subscription = await prisma.subscription.findUnique({ where: { id } });
+    } catch (_) { /* non-critical; template handles null gracefully */ }
+
+    if (!subscription) return renderNotFound(res);
+
     return res.status(422).render('subscriptions/edit', {
-      title:       `Edit — ${subscription ? subscription.name : 'Subscription'}`,
+      title:       `Edit — ${subscription.name}`,
       subscription,
       formData:    req.body,
       fieldErrors: result.errors,
@@ -197,34 +218,25 @@ router.put('/:id', async (req, res) => {
     req.flash('success', `"${sanitized.name}" updated successfully!`);
     res.redirect(`/subscriptions/${id}`);
   } catch (err) {
-    console.error('Error updating subscription:', err);
-    req.flash('error', 'Failed to update subscription. Please try again.');
-    res.redirect(`/subscriptions/${id}/edit`);
+    next(err);
   }
 });
 
 // ─── DELETE /subscriptions/:id ─────────────────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
+  const id = parseId(req.params.id);
+  if (isNaN(id)) return renderNotFound(res);
+
   try {
-    const subscription = await prisma.subscription.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
+    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    if (!subscription) return renderNotFound(res);
 
-    if (!subscription) {
-      req.flash('error', 'Subscription not found.');
-      return res.redirect('/subscriptions');
-    }
-
-    await prisma.subscription.delete({
-      where: { id: parseInt(req.params.id) },
-    });
+    await prisma.subscription.delete({ where: { id } });
 
     req.flash('success', `"${subscription.name}" deleted successfully.`);
     res.redirect('/subscriptions');
   } catch (err) {
-    console.error('Error deleting subscription:', err);
-    req.flash('error', 'Failed to delete subscription.');
-    res.redirect('/subscriptions');
+    next(err);
   }
 });
 
