@@ -5,7 +5,10 @@ const router = express.Router();
 // Stub for FR5 — authentication placeholder
 router.get('/login', (req, res) => {
   if (req.session.user) return res.redirect('/subscriptions');
-  res.render('login', { title: 'Login - AI Subscription Analyzer' });
+  res.render('login', {
+    title:       'Login - AI Subscription Analyzer',
+    breadcrumbs: [{ label: 'Home', url: '/' }, { label: 'Login' }],
+  });
 });
 
 // ─── POST /login ────────────────────────────────────────────────────────────────

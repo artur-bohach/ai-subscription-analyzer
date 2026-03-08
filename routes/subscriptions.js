@@ -20,6 +20,9 @@ const DEFAULT_USER_ID = 1;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
+const BC_ROOT = { label: 'Home', url: '/' };
+const BC_LIST = { label: 'Subscriptions', url: '/subscriptions' };
+
 /** Render the 404 error page with an optional contextual message. */
 function renderNotFound(res, message) {
   return res.status(404).render('errors/404', {
@@ -50,6 +53,7 @@ router.get('/', async (_req, res, next) => {
 
     res.render('subscriptions/index', {
       title:        'My Subscriptions',
+      breadcrumbs:  [BC_ROOT, { label: 'Subscriptions' }],
       subscriptions,
       monthlyTotal: monthlyTotal.toFixed(2),
       yearlyTotal:  (monthlyTotal * 12).toFixed(2),
@@ -67,6 +71,7 @@ router.get('/', async (_req, res, next) => {
 router.get('/new', (_req, res) => {
   res.render('subscriptions/new', {
     title:       'Add Subscription',
+    breadcrumbs: [BC_ROOT, BC_LIST, { label: 'New Subscription' }],
     formData:    {},
     fieldErrors: {},
   });
@@ -84,6 +89,7 @@ router.post('/', async (req, res, next) => {
   if (!result.isValid) {
     return res.status(422).render('subscriptions/new', {
       title:       'Add Subscription',
+      breadcrumbs: [BC_ROOT, BC_LIST, { label: 'New Subscription' }],
       formData:    req.body,
       fieldErrors: result.errors,
     });
@@ -116,6 +122,7 @@ router.post('/', async (req, res, next) => {
     req.flash('error', 'Failed to save subscription. Please try again.');
     res.status(500).render('subscriptions/new', {
       title:       'Add Subscription',
+      breadcrumbs: [BC_ROOT, BC_LIST, { label: 'New Subscription' }],
       formData:    req.body,
       fieldErrors: {},
     });
@@ -135,6 +142,7 @@ router.get('/:id', async (req, res, next) => {
 
     res.render('subscriptions/show', {
       title:             subscription.name,
+      breadcrumbs:       [BC_ROOT, BC_LIST, { label: subscription.name }],
       subscription,
       monthlyEquivalent: monthly.toFixed(2),
       yearlyEquivalent:  (monthly * 12).toFixed(2),
@@ -157,6 +165,7 @@ router.get('/:id/edit', async (req, res, next) => {
 
     res.render('subscriptions/edit', {
       title:       `Edit — ${subscription.name}`,
+      breadcrumbs: [BC_ROOT, BC_LIST, { label: subscription.name, url: `/subscriptions/${id}` }, { label: 'Edit' }],
       subscription,
       formData:    subscription,
       fieldErrors: {},
@@ -189,6 +198,7 @@ router.put('/:id', async (req, res, next) => {
 
     return res.status(422).render('subscriptions/edit', {
       title:       `Edit — ${subscription.name}`,
+      breadcrumbs: [BC_ROOT, BC_LIST, { label: subscription.name, url: `/subscriptions/${id}` }, { label: 'Edit' }],
       subscription,
       formData:    req.body,
       fieldErrors: result.errors,

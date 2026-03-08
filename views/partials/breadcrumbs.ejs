@@ -1,0 +1,17 @@
+<% if (typeof breadcrumbs !== 'undefined' && breadcrumbs && breadcrumbs.length > 1) { %>
+<nav class="breadcrumbs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Breadcrumb">
+  <ol class="breadcrumb-list">
+    <% breadcrumbs.forEach((crumb, i) => { %>
+      <% const isLast = i === breadcrumbs.length - 1; %>
+      <li class="breadcrumb-item">
+        <% if (!isLast && crumb.url) { %>
+          <a href="<%= crumb.url %>" class="breadcrumb-link"><%= crumb.label %></a>
+          <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <% } else { %>
+          <span class="breadcrumb-current" aria-current="page"><%= crumb.label %></span>
+        <% } %>
+      </li>
+    <% }) %>
+  </ol>
+</nav>
+<% } %>
