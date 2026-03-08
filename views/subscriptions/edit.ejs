@@ -1,6 +1,8 @@
 <%
-  const fe = fieldErrors || {};   // shorthand
-  const data = (formData && formData.name) ? formData : subscription;
+  const fe = fieldErrors || {};
+  // Use 'name' in formData (not formData.name) so an empty name string still
+  // triggers the formData path and doesn't silently fall back to the DB value.
+  const data = (formData && 'name' in formData) ? formData : subscription;
 
   const categories = [
     'Entertainment', 'Productivity', 'Education',
@@ -12,6 +14,15 @@
   const statuses   = ['active', 'paused', 'cancelled'];
 
   const errorCount = Object.keys(fe).length;
+
+  // Safe cost display: Prisma Decimals format as X.XX; raw form strings are
+  // preserved as-is so invalid input (e.g. "abc") is shown back, not "NaN".
+  const costDisplay = (() => {
+    const c = data.cost;
+    if (c == null || c === '') return '';
+    const n = Number(c);
+    return isNaN(n) ? String(c) : n.toFixed(2);
+  })();
 %>
 
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -95,7 +106,7 @@
             id="cost" name="cost" type="number"
             class="form-input <%= fe.cost ? 'is-error' : '' %>"
             placeholder="9.99" min="0.01" step="0.01"
-            value="<%= data.cost ? Number(data.cost).toFixed(2) : '' %>"
+            value="<%= costDisplay %>"
             required
           />
           <% if (fe.cost) { %><p class="field-error-msg show">⚠ <%= fe.cost %></p><% } %>

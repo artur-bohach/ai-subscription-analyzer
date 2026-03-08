@@ -123,13 +123,25 @@ function getStatusClasses(status) {
 
 /**
  * Format a date for HTML date input (YYYY-MM-DD).
+ *
+ * Uses local date parts instead of toISOString() to avoid a UTC-offset
+ * shift when the server runs in a non-UTC timezone (e.g. UTC+2 would
+ * make toISOString return the previous day for a local-midnight Date).
+ * Plain YYYY-MM-DD strings are returned as-is.
+ *
  * @param {Date|string} date
  * @returns {string}
  */
 function formatDateInput(date) {
   if (!date) return '';
+  // YYYY-MM-DD strings round-trip correctly without any Date parsing
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
   const d = new Date(date);
-  return d.toISOString().split('T')[0];
+  if (isNaN(d.getTime())) return '';
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
