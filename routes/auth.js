@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/login', (req, res) => {
   if (req.session.user) return res.redirect('/subscriptions');
   res.render('login', {
-    title:       'Login - AI Subscription Analyzer',
+    title:       'Login - SubTracker',
     breadcrumbs: [{ label: 'Home', url: '/' }, { label: 'Login' }],
   });
 });

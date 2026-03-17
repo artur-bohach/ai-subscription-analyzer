@@ -3,7 +3,7 @@ const router = express.Router();
 
 // ─── Home Page ─────────────────────────────────────────────────────────────────
 router.get('/', (_req, res) => {
-  res.render('home', { title: 'AI Subscription Analyzer' });
+  res.render('home', { title: 'SubTracker' });
 });
 
 // ─── /home alias ───────────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ router.get('/home', (_req, res) => {
 // ─── About Page ────────────────────────────────────────────────────────────────
 router.get('/about', (_req, res) => {
   res.render('about', {
-    title:       'About - AI Subscription Analyzer',
+    title:       'About - SubTracker',
     breadcrumbs: [{ label: 'Home', url: '/' }, { label: 'About' }],
   });
 });
@@ -22,7 +22,7 @@ router.get('/about', (_req, res) => {
 // ─── Contact Page ──────────────────────────────────────────────────────────────
 router.get('/contact', (_req, res) => {
   res.render('contact', {
-    title:       'Contact - AI Subscription Analyzer',
+    title:       'Contact - SubTracker',
     breadcrumbs: [{ label: 'Home', url: '/' }, { label: 'Contact' }],
   });
 });

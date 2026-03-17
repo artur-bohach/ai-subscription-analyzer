@@ -354,7 +354,7 @@ main { animation: pageFadeIn 0.22s ease-out; }
   vertical-align: middle;
 }
 .data-table tbody tr { transition: background 0.15s; }
-.data-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+.data-table tbody tr.sub-row:hover { background: rgba(139,92,246,0.06); }
 .data-table tbody tr:last-child td { border-bottom: none; }
 
 /* ── Feature Cards ────────────────────────────────────────────────────────── */

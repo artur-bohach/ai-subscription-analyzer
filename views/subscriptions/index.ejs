@@ -106,7 +106,7 @@
               const catClass = catColors[sub.category] || 'text-slate-400 bg-slate-500/10';
               const monthly = normalizeToMonthly(Number(sub.cost), sub.billingCycle);
             %>
-              <tr>
+              <tr class="sub-row" onclick="window.location='/subscriptions/<%= sub.id %>'" style="cursor:pointer;" title="View <%= sub.name %> details">
                 <!-- Service Name -->
                 <td>
                   <div class="flex items-center gap-3">
@@ -160,7 +160,7 @@
                 </td>
 
                 <!-- Action Buttons -->
-                <td>
+                <td onclick="event.stopPropagation()">
                   <div class="flex items-center justify-end gap-2">
                     <a href="/subscriptions/<%= sub.id %>" class="btn-ghost text-xs py-1.5 px-3">
                       <i data-lucide="eye" class="w-3.5 h-3.5"></i>
