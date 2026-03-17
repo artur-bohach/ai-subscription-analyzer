@@ -52,7 +52,9 @@ app.use(flash());
 // ─── Global Template Variables ─────────────────────────────────────────────────
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  res.locals.error   = req.flash('error');
+  res.locals.warning = req.flash('warning');
+  res.locals.info    = req.flash('info');
   res.locals.currentUser = req.session.user || null;
   res.locals.currentPath = req.path;
   next();
@@ -93,7 +95,7 @@ app.use((err, req, _res, next) => {
 
 // ─── 500 Error Handler ─────────────────────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   const status = err.status || err.statusCode || 500;
   const isDev  = process.env.NODE_ENV !== 'production';
 

@@ -288,6 +288,28 @@ body {
   to   { opacity: 0; transform: translateX(20px); }
 }
 
+.flash-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+.flash-info {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+@media (max-width: 480px) {
+  .flash-container { left: 1rem; right: 1rem; max-width: 100%; }
+}
+
+/* ── Page Fade-In ─────────────────────────────────────────────────────────── */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main { animation: pageFadeIn 0.22s ease-out; }
+
 /* ── Hero Section ─────────────────────────────────────────────────────────── */
 .hero-bg {
   background:
