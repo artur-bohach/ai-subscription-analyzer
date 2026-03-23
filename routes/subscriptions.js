@@ -12,11 +12,12 @@ const {
 } = require('../utils/helpers');
 
 const { validateSubscription } = require('../utils/validators');
+const { requireAuth }          = require('../middleware/auth');
 
 const prisma = getPrismaClient();
 
-// Default userId for demo (FR5 auth is a stub)
-const DEFAULT_USER_ID = 1;
+// All subscription routes require a signed-in user
+router.use(requireAuth);
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -39,10 +40,11 @@ function parseId(str) {
 }
 
 // ─── GET /subscriptions — list all ─────────────────────────────────────────────
-router.get('/', async (_req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
+    const userId = req.session.user.id;
     const subscriptions = await prisma.subscription.findMany({
-      where:   { userId: DEFAULT_USER_ID },
+      where:   { userId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -79,9 +81,10 @@ router.get('/new', (_req, res) => {
 
 // ─── POST /subscriptions — create ──────────────────────────────────────────────
 router.post('/', async (req, res, next) => {
+  const userId = req.session.user.id;
   let result;
   try {
-    result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID);
+    result = await validateSubscription(req.body, prisma, userId);
   } catch (err) {
     return next(err);
   }
@@ -111,14 +114,13 @@ router.post('/', async (req, res, next) => {
         nextPayment,
         status:       sanitized.status,
         notes:        sanitized.notes,
-        userId:       DEFAULT_USER_ID,
+        userId,
       },
     });
 
     req.flash('success', `"${sanitized.name}" subscription added successfully!`);
     res.redirect('/subscriptions');
   } catch (err) {
-    // DB write failure: keep user on the form with a flash, not a 500 page
     req.flash('error', 'Failed to save subscription. Please try again.');
     res.status(500).render('subscriptions/new', {
       title:       'Add Subscription',
@@ -131,11 +133,12 @@ router.post('/', async (req, res, next) => {
 
 // ─── GET /subscriptions/:id — show ─────────────────────────────────────────────
 router.get('/:id', async (req, res, next) => {
-  const id = parseId(req.params.id);
+  const id     = parseId(req.params.id);
+  const userId = req.session.user.id;
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
     if (!subscription) return renderNotFound(res);
 
     const monthly = normalizeToMonthly(Number(subscription.cost), subscription.billingCycle);
@@ -156,11 +159,12 @@ router.get('/:id', async (req, res, next) => {
 
 // ─── GET /subscriptions/:id/edit ───────────────────────────────────────────────
 router.get('/:id/edit', async (req, res, next) => {
-  const id = parseId(req.params.id);
+  const id     = parseId(req.params.id);
+  const userId = req.session.user.id;
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
     if (!subscription) return renderNotFound(res);
 
     res.render('subscriptions/edit', {
@@ -177,22 +181,22 @@ router.get('/:id/edit', async (req, res, next) => {
 
 // ─── PUT /subscriptions/:id — update (via method-override) ─────────────────────
 router.put('/:id', async (req, res, next) => {
-  const id = parseId(req.params.id);
+  const id     = parseId(req.params.id);
+  const userId = req.session.user.id;
   if (isNaN(id)) return renderNotFound(res);
 
   let result;
   try {
-    result = await validateSubscription(req.body, prisma, DEFAULT_USER_ID, id);
+    result = await validateSubscription(req.body, prisma, userId, id);
   } catch (err) {
     return next(err);
   }
 
   if (!result.isValid) {
-    // Fetch the record so the template can render the page title and back-link
     let subscription = null;
     try {
-      subscription = await prisma.subscription.findUnique({ where: { id } });
-    } catch (_) { /* non-critical; template handles null gracefully */ }
+      subscription = await prisma.subscription.findFirst({ where: { id, userId } });
+    } catch (_) { /* non-critical */ }
 
     if (!subscription) return renderNotFound(res);
 
@@ -234,11 +238,12 @@ router.put('/:id', async (req, res, next) => {
 
 // ─── DELETE /subscriptions/:id ─────────────────────────────────────────────────
 router.delete('/:id', async (req, res, next) => {
-  const id = parseId(req.params.id);
+  const id     = parseId(req.params.id);
+  const userId = req.session.user.id;
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findUnique({ where: { id } });
+    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
     if (!subscription) return renderNotFound(res);
 
     await prisma.subscription.delete({ where: { id } });

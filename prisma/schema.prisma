@@ -1,4 +1,4 @@
-// Prisma Schema for AI Subscription Analyzer
+// Prisma Schema for SubTracker
 
 generator client {
   provider = "prisma-client-js"
@@ -12,10 +12,13 @@ datasource db {
 model User {
   id            Int            @id @default(autoincrement())
   username      String         @unique
+  email         String         @unique
   passwordHash  String
-  role          String         @default("admin")
+  role          String         @default("user")
+  avatar        String?
   subscriptions Subscription[]
   createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Subscription {

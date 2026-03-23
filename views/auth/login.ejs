@@ -1,0 +1,160 @@
+<!-- ── Login Page (FR5) ─────────────────────────────────────────────────────── -->
+<div class="auth-page">
+
+  <!-- ── Left: Brand Panel ───────────────────────────────────────────────────── -->
+  <div class="auth-brand">
+    <div class="auth-brand-inner">
+      <!-- Logo -->
+      <a href="/" class="auth-brand-logo">
+        <div class="auth-logo-icon">
+          <i data-lucide="layers" class="w-7 h-7 text-white"></i>
+        </div>
+        <span class="text-xl font-bold text-white">Sub<span class="gradient-text">Tracker</span></span>
+      </a>
+
+      <!-- Headline -->
+      <div class="auth-brand-headline">
+        <h1 class="text-3xl font-extrabold text-white leading-tight">
+          Welcome back
+        </h1>
+        <p class="text-slate-400 mt-3 text-sm leading-relaxed">
+          Sign in to manage your subscriptions,<br class="hidden xl:block"/>
+          track your spend, and save more.
+        </p>
+      </div>
+
+      <!-- Stats -->
+      <div class="auth-brand-stats">
+        <div class="auth-stat">
+          <p class="text-2xl font-bold gradient-text">100%</p>
+          <p class="text-xs text-slate-500 mt-0.5">Private &amp; Secure</p>
+        </div>
+        <div class="auth-stat-divider"></div>
+        <div class="auth-stat">
+          <p class="text-2xl font-bold gradient-text">€/$ Multi</p>
+          <p class="text-xs text-slate-500 mt-0.5">Currency</p>
+        </div>
+        <div class="auth-stat-divider"></div>
+        <div class="auth-stat">
+          <p class="text-2xl font-bold gradient-text">10+</p>
+          <p class="text-xs text-slate-500 mt-0.5">Categories</p>
+        </div>
+      </div>
+
+      <!-- Decorative orb -->
+      <div class="auth-brand-orb"></div>
+    </div>
+  </div>
+
+  <!-- ── Right: Form Panel ───────────────────────────────────────────────────── -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+
+      <!-- Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-white">Sign in to SubTracker</h2>
+        <p class="text-slate-400 text-sm mt-1.5">
+          Don't have an account?
+          <a href="/register" class="text-purple-400 hover:text-purple-300 font-medium transition-colors">Create one free</a>
+        </p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" action="/login" method="POST" novalidate>
+
+        <!-- Identifier (email or username) -->
+        <div class="mb-5">
+          <label for="identifier" class="form-label">
+            <i data-lucide="user" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+            Email or username
+          </label>
+          <input
+            id="identifier"
+            name="identifier"
+            type="text"
+            class="form-input"
+            placeholder="you@example.com or username"
+            value="<%= formData.identifier || '' %>"
+            autocomplete="username"
+            autocapitalize="none"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="mb-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="password" class="form-label mb-0">
+              <i data-lucide="lock" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Password
+            </label>
+            <a href="/forgot-password" class="text-xs text-slate-400 hover:text-purple-400 transition-colors">
+              Forgot password?
+            </a>
+          </div>
+          <div class="relative">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="form-input pr-11"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="pwd-toggle"
+              data-toggle-password="password"
+              aria-label="Toggle password visibility"
+            >
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="flex items-center gap-2 mb-6 mt-4">
+          <input
+            id="rememberMe"
+            name="rememberMe"
+            type="checkbox"
+            class="auth-checkbox"
+          />
+          <label for="rememberMe" class="text-sm text-slate-400 cursor-pointer select-none">
+            Remember me for 30 days
+          </label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-gradient w-full justify-center py-3 text-base">
+          <i data-lucide="log-in" class="w-5 h-5"></i>
+          Sign In
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider"><span>or</span></div>
+
+      <!-- Register link -->
+      <p class="text-center text-sm text-slate-400">
+        New to SubTracker?
+        <a href="/register" class="text-purple-400 hover:text-purple-300 font-medium transition-colors">Create a free account</a>
+      </p>
+
+      <!-- Demo credentials -->
+      <div class="mt-6 p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+        <p class="text-xs text-purple-300 text-center font-medium mb-2">
+          <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1"></i>
+          Demo Credentials
+        </p>
+        <div class="flex justify-center gap-6 text-xs text-slate-400">
+          <span>Login: <code class="text-purple-300 font-mono">admin</code></span>
+          <span>Password: <code class="text-purple-300 font-mono">admin123</code></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

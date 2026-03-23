@@ -621,6 +621,245 @@ function initDeleteModal() {
 // ── INIT — runs after DOM is ready
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── PASSWORD TOGGLE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function initPasswordToggles() {
+  document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-toggle-password');
+      const input    = document.getElementById(targetId);
+      if (!input) return;
+
+      const isHidden = input.type === 'password';
+      input.type     = isHidden ? 'text' : 'password';
+
+      const icon = btn.querySelector('[data-lucide]');
+      if (icon) {
+        icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── PASSWORD STRENGTH
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function getPasswordStrength(password) {
+  if (!password) return { level: '', score: 0 };
+  let score = 0;
+  if (password.length >= 6)  score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1)  return { level: 'weak',        score };
+  if (score === 2) return { level: 'medium',       score };
+  if (score === 3) return { level: 'strong',       score };
+  return               { level: 'very-strong',   score };
+}
+
+function updateStrengthBar(bar, label, password) {
+  const { level } = getPasswordStrength(password);
+
+  // Clear old level classes
+  bar.classList.remove('pwr-weak', 'pwr-medium', 'pwr-strong', 'pwr-very-strong');
+
+  if (!password) {
+    label.textContent = '';
+    return;
+  }
+
+  bar.classList.add(`pwr-${level}`);
+  const map = { 'weak': 'Weak', 'medium': 'Fair', 'strong': 'Good', 'very-strong': 'Strong' };
+  label.textContent = map[level] || '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── REGISTER FORM MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function initRegisterForm() {
+  const form = $('register-form');
+  if (!form) return;
+
+  const usernameEl  = $('username');
+  const emailEl     = $('email');
+  const passwordEl  = $('password');
+  const confirmEl   = $('confirmPassword');
+  const pwrBar      = document.querySelector('.pwr-bar');
+  const pwrLabel    = $('pwr-label');
+
+  // Attach strength bar updates
+  if (passwordEl && pwrBar && pwrLabel) {
+    passwordEl.addEventListener('input', () => {
+      updateStrengthBar(pwrBar, pwrLabel, passwordEl.value);
+    });
+  }
+
+  const fields = [
+    {
+      el: usernameEl,
+      fn: (v) => {
+        const t = v.trim();
+        if (!t)           return 'Username is required.';
+        if (t.length < 3) return 'Must be at least 3 characters.';
+        if (t.length > 30)return 'Must be 30 characters or fewer.';
+        if (!/^[a-zA-Z0-9_-]+$/.test(t)) return 'Letters, numbers, _ and - only.';
+        return null;
+      },
+      required: true,
+    },
+    {
+      el: emailEl,
+      fn: (v) => Validators.email(v),
+      required: true,
+    },
+    {
+      el: passwordEl,
+      fn: (v) => {
+        if (!v)           return 'Password is required.';
+        if (v.length < 6) return 'Must be at least 6 characters.';
+        return null;
+      },
+      required: true,
+    },
+    {
+      el: confirmEl,
+      fn: (v) => {
+        if (!v) return 'Please confirm your password.';
+        if (passwordEl && v !== passwordEl.value) return 'Passwords do not match.';
+        return null;
+      },
+      required: true,
+    },
+  ].filter((f) => f.el !== null);
+
+  // Pre-mark any server-side errors as touched so they remain visible
+  fields.forEach(({ el }) => {
+    if (el && el.classList.contains('is-error')) touched.add(el.id);
+  });
+
+  const validity = new Map(fields.map((f) => [f.el.id, false]));
+  // Fields that already came back with server errors count as invalid
+  fields.forEach(({ el }) => {
+    if (el.classList.contains('is-error')) validity.set(el.id, false);
+  });
+
+  function recheck() {
+    setSubmitState(form, [...validity.values()].every(Boolean));
+  }
+
+  function validateOne(entry, force = false) {
+    if (!touched.has(entry.el.id) && !force) return;
+    const valid = runValidator(entry.el, entry.fn);
+    validity.set(entry.el.id, valid);
+    // Re-validate confirm whenever password changes
+    if (entry.el.id === 'password' && confirmEl && touched.has('confirmPassword')) {
+      const ok = runValidator(confirmEl, fields.find((f) => f.el === confirmEl).fn);
+      validity.set('confirmPassword', ok);
+    }
+    recheck();
+  }
+
+  fields.forEach((entry) => {
+    const { el } = entry;
+    el.addEventListener('blur',   () => { touched.add(el.id); validateOne(entry, true); });
+    el.addEventListener('input',  () => { if (touched.has(el.id)) validateOne(entry, true); });
+    el.addEventListener('change', () => { if (touched.has(el.id)) validateOne(entry, true); });
+  });
+
+  form.addEventListener('submit', (e) => {
+    let allValid = true;
+    fields.forEach((entry) => {
+      touched.add(entry.el.id);
+      const valid = runValidator(entry.el, entry.fn);
+      validity.set(entry.el.id, valid);
+      if (!valid) allValid = false;
+    });
+    setSubmitState(form, allValid);
+    if (!allValid) {
+      e.preventDefault();
+      shakeSubmitBtn(form);
+      const firstErr = form.querySelector('.is-error');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  recheck();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── LOGIN FORM MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function initLoginForm() {
+  const form = $('login-form');
+  if (!form) return;
+
+  const identifierEl = $('identifier');
+  const passwordEl   = $('password');
+
+  const fields = [
+    {
+      el: identifierEl,
+      fn: (v) => {
+        if (!v.trim()) return 'Email or username is required.';
+        return null;
+      },
+      required: true,
+    },
+    {
+      el: passwordEl,
+      fn: (v) => {
+        if (!v) return 'Password is required.';
+        return null;
+      },
+      required: true,
+    },
+  ].filter((f) => f.el !== null);
+
+  const validity = new Map(fields.map((f) => [f.el.id, false]));
+
+  function recheck() {
+    setSubmitState(form, [...validity.values()].every(Boolean));
+  }
+
+  function validateOne(entry, force = false) {
+    if (!touched.has(entry.el.id) && !force) return;
+    const valid = runValidator(entry.el, entry.fn);
+    validity.set(entry.el.id, valid);
+    recheck();
+  }
+
+  fields.forEach((entry) => {
+    const { el } = entry;
+    el.addEventListener('blur',  () => { touched.add(el.id); validateOne(entry, true); });
+    el.addEventListener('input', () => { if (touched.has(el.id)) validateOne(entry, true); });
+  });
+
+  form.addEventListener('submit', (e) => {
+    let allValid = true;
+    fields.forEach((entry) => {
+      touched.add(entry.el.id);
+      const valid = runValidator(entry.el, entry.fn);
+      validity.set(entry.el.id, valid);
+      if (!valid) allValid = false;
+    });
+    setSubmitState(form, allValid);
+    if (!allValid) {
+      e.preventDefault();
+      shakeSubmitBtn(form);
+    }
+  });
+
+  recheck();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initFlash();
   initMobileMenu();
@@ -628,4 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDeleteModal();
   initSubscriptionForm();
   initContactForm();
+  initPasswordToggles();
+  initRegisterForm();
+  initLoginForm();
 });

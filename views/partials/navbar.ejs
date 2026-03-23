@@ -69,10 +69,19 @@
         <i data-lucide="mail" class="w-4 h-4"></i> Contact
       </a>
       <div class="pt-2 border-t border-white/10 mt-2 flex flex-col gap-2">
-        <a href="/login" class="btn-ghost text-sm justify-center">Login</a>
-        <a href="/subscriptions/new" class="btn-gradient text-sm justify-center">
-          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Subscription
-        </a>
+        <% if (currentUser) { %>
+          <span class="text-xs text-slate-500 px-2">Signed in as <strong class="text-slate-400"><%= currentUser.username %></strong></span>
+          <form action="/logout" method="POST" class="m-0">
+            <button type="submit" class="btn-ghost text-sm w-full justify-center">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+            </button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-ghost text-sm justify-center">Login</a>
+          <a href="/register" class="btn-gradient text-sm justify-center">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Get Started
+          </a>
+        <% } %>
       </div>
     </div>
   </div>
