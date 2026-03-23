@@ -7,6 +7,7 @@ const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const path = require('path');
 const helpers = require('./utils/helpers');
+const { loadUser } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,16 +50,19 @@ app.use(session({
 // ─── Flash Messages ────────────────────────────────────────────────────────────
 app.use(flash());
 
-// ─── Global Template Variables ─────────────────────────────────────────────────
+// ─── Global Middleware ─────────────────────────────────────────────────────────
+// Flash → res.locals (must run before loadUser so flash is available in templates)
 app.use((req, res, next) => {
-  res.locals.success = req.flash('success');
-  res.locals.error   = req.flash('error');
-  res.locals.warning = req.flash('warning');
-  res.locals.info    = req.flash('info');
-  res.locals.currentUser = req.session.user || null;
+  res.locals.success     = req.flash('success');
+  res.locals.error       = req.flash('error');
+  res.locals.warning     = req.flash('warning');
+  res.locals.info        = req.flash('info');
   res.locals.currentPath = req.path;
   next();
 });
+
+// Load user from DB on every request (sets currentUser, isAuthenticated, isAdmin)
+app.use(loadUser);
 
 // ─── Routes ────────────────────────────────────────────────────────────────────
 const indexRoutes        = require('./routes/index');
@@ -79,7 +83,6 @@ app.use((req, res) => {
 });
 
 // ─── Error Logger ──────────────────────────────────────────────────────────────
-// Logs every error with timestamp + request context before delegating to renderer
 app.use((err, req, _res, next) => {
   const ts     = new Date().toISOString();
   const status = err.status || err.statusCode || 500;
@@ -109,7 +112,7 @@ app.use((err, _req, res, _next) => {
 
 // ─── Start Server ──────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n🚀 AI Subscription Analyzer running at http://localhost:${PORT}`);
+  console.log(`\n🚀 SubTracker running at http://localhost:${PORT}`);
   console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 

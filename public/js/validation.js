@@ -860,6 +860,45 @@ function initLoginForm() {
   recheck();
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── USER DROPDOWN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function initUserDropdown() {
+  const btn  = $('user-dropdown-btn');
+  const menu = $('user-dropdown-menu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen && typeof lucide !== 'undefined') lucide.createIcons();
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!menu.classList.contains('open')) return;
+    const wrap = $('user-dropdown-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('open')) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initFlash();
   initMobileMenu();
@@ -870,4 +909,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initPasswordToggles();
   initRegisterForm();
   initLoginForm();
+  initUserDropdown();
 });

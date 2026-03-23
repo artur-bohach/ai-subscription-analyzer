@@ -12,12 +12,12 @@ const {
 } = require('../utils/helpers');
 
 const { validateSubscription } = require('../utils/validators');
-const { requireAuth }          = require('../middleware/auth');
+const { isAuthenticated }      = require('../middleware/auth');
 
 const prisma = getPrismaClient();
 
 // All subscription routes require a signed-in user
-router.use(requireAuth);
+router.use(isAuthenticated);
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -39,12 +39,26 @@ function parseId(str) {
   return Number.isFinite(id) ? id : NaN;
 }
 
+/**
+ * Build the ownership filter for a subscription query.
+ * Admin sees all subscriptions; regular users only their own.
+ */
+function ownerFilter(id, res) {
+  if (res.locals.isAdmin) return { id };
+  return { id, userId: res.locals.currentUser.id };
+}
+
+/** Get current user's ID from res.locals. */
+function currentUserId(res) {
+  return res.locals.currentUser.id;
+}
+
 // ─── GET /subscriptions — list all ─────────────────────────────────────────────
-router.get('/', async (req, res, next) => {
+router.get('/', async (_req, res, next) => {
   try {
-    const userId = req.session.user.id;
+    const userId = currentUserId(res);
     const subscriptions = await prisma.subscription.findMany({
-      where:   { userId },
+      where:   res.locals.isAdmin ? {} : { userId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -81,7 +95,7 @@ router.get('/new', (_req, res) => {
 
 // ─── POST /subscriptions — create ──────────────────────────────────────────────
 router.post('/', async (req, res, next) => {
-  const userId = req.session.user.id;
+  const userId = currentUserId(res);
   let result;
   try {
     result = await validateSubscription(req.body, prisma, userId);
@@ -133,12 +147,11 @@ router.post('/', async (req, res, next) => {
 
 // ─── GET /subscriptions/:id — show ─────────────────────────────────────────────
 router.get('/:id', async (req, res, next) => {
-  const id     = parseId(req.params.id);
-  const userId = req.session.user.id;
+  const id = parseId(req.params.id);
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
+    const subscription = await prisma.subscription.findFirst({ where: ownerFilter(id, res) });
     if (!subscription) return renderNotFound(res);
 
     const monthly = normalizeToMonthly(Number(subscription.cost), subscription.billingCycle);
@@ -159,12 +172,11 @@ router.get('/:id', async (req, res, next) => {
 
 // ─── GET /subscriptions/:id/edit ───────────────────────────────────────────────
 router.get('/:id/edit', async (req, res, next) => {
-  const id     = parseId(req.params.id);
-  const userId = req.session.user.id;
+  const id = parseId(req.params.id);
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
+    const subscription = await prisma.subscription.findFirst({ where: ownerFilter(id, res) });
     if (!subscription) return renderNotFound(res);
 
     res.render('subscriptions/edit', {
@@ -181,10 +193,10 @@ router.get('/:id/edit', async (req, res, next) => {
 
 // ─── PUT /subscriptions/:id — update (via method-override) ─────────────────────
 router.put('/:id', async (req, res, next) => {
-  const id     = parseId(req.params.id);
-  const userId = req.session.user.id;
+  const id = parseId(req.params.id);
   if (isNaN(id)) return renderNotFound(res);
 
+  const userId = currentUserId(res);
   let result;
   try {
     result = await validateSubscription(req.body, prisma, userId, id);
@@ -195,7 +207,7 @@ router.put('/:id', async (req, res, next) => {
   if (!result.isValid) {
     let subscription = null;
     try {
-      subscription = await prisma.subscription.findFirst({ where: { id, userId } });
+      subscription = await prisma.subscription.findFirst({ where: ownerFilter(id, res) });
     } catch (_) { /* non-critical */ }
 
     if (!subscription) return renderNotFound(res);
@@ -213,6 +225,10 @@ router.put('/:id', async (req, res, next) => {
     const { sanitized } = result;
     const parsedStart = new Date(sanitized.startDate + 'T00:00:00');
     const nextPayment = calculateNextPayment(parsedStart, sanitized.billingCycle);
+
+    // Verify ownership before update
+    const existing = await prisma.subscription.findFirst({ where: ownerFilter(id, res) });
+    if (!existing) return renderNotFound(res);
 
     await prisma.subscription.update({
       where: { id },
@@ -238,12 +254,11 @@ router.put('/:id', async (req, res, next) => {
 
 // ─── DELETE /subscriptions/:id ─────────────────────────────────────────────────
 router.delete('/:id', async (req, res, next) => {
-  const id     = parseId(req.params.id);
-  const userId = req.session.user.id;
+  const id = parseId(req.params.id);
   if (isNaN(id)) return renderNotFound(res);
 
   try {
-    const subscription = await prisma.subscription.findFirst({ where: { id, userId } });
+    const subscription = await prisma.subscription.findFirst({ where: ownerFilter(id, res) });
     if (!subscription) return renderNotFound(res);
 
     await prisma.subscription.delete({ where: { id } });

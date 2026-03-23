@@ -14,36 +14,94 @@
 
       <!-- Desktop Nav Links -->
       <div class="hidden md:flex items-center gap-1">
-        <a href="/"             class="nav-link <%= currentPath === '/' ? 'active' : '' %>">
-          <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
-        </a>
-        <a href="/subscriptions" class="nav-link <%= currentPath.startsWith('/subscriptions') ? 'active' : '' %>">
-          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Subscriptions
-        </a>
-        <a href="/about"        class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i> About
-        </a>
-        <a href="/contact"      class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">
-          <i data-lucide="mail" class="w-3.5 h-3.5"></i> Contact
-        </a>
+        <% if (isAuthenticated) { %>
+          <!-- Logged-in nav -->
+          <a href="/subscriptions" class="nav-link <%= currentPath.startsWith('/subscriptions') ? 'active' : '' %>">
+            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Subscriptions
+          </a>
+          <% if (isAdmin) { %>
+            <a href="/admin" class="nav-link <%= currentPath.startsWith('/admin') ? 'active' : '' %>">
+              <i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin Panel
+            </a>
+          <% } %>
+        <% } else { %>
+          <!-- Guest nav -->
+          <a href="/"        class="nav-link <%= currentPath === '/' ? 'active' : '' %>">
+            <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
+          </a>
+          <a href="/about"   class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i> About
+          </a>
+          <a href="/contact" class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">
+            <i data-lucide="mail" class="w-3.5 h-3.5"></i> Contact
+          </a>
+        <% } %>
       </div>
 
       <!-- Desktop Right Actions -->
       <div class="hidden md:flex items-center gap-3">
-        <% if (currentUser) { %>
-          <span class="text-sm text-slate-400">
-            <i data-lucide="user-circle" class="w-4 h-4 inline-block mr-1 -mt-0.5"></i>
-            <%= currentUser.username %>
-          </span>
-          <form action="/logout" method="POST" class="m-0">
-            <button type="submit" class="btn-ghost text-sm py-1.5 px-3">
-              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+        <% if (isAuthenticated) { %>
+          <!-- User Dropdown -->
+          <div class="user-dropdown-wrap" id="user-dropdown-wrap">
+            <button
+              id="user-dropdown-btn"
+              class="user-dropdown-trigger"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <div class="user-avatar">
+                <span><%= currentUser.username.charAt(0).toUpperCase() %></span>
+              </div>
+              <span class="text-sm text-slate-300 font-medium"><%= currentUser.username %></span>
+              <% if (isAdmin) { %>
+                <span class="badge-admin">Admin</span>
+              <% } %>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 dropdown-chevron"></i>
             </button>
-          </form>
+
+            <!-- Dropdown Menu -->
+            <div class="user-dropdown-menu" id="user-dropdown-menu">
+              <!-- User info header -->
+              <div class="dropdown-header">
+                <p class="text-sm font-medium text-white"><%= currentUser.username %></p>
+                <p class="text-xs text-slate-400 truncate"><%= currentUser.email %></p>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <a href="/subscriptions" class="dropdown-item">
+                <i data-lucide="credit-card" class="w-4 h-4"></i> My Subscriptions
+              </a>
+              <a href="/subscriptions/new" class="dropdown-item">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Subscription
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              <a href="#" class="dropdown-item" onclick="return false;">
+                <i data-lucide="user" class="w-4 h-4"></i> Profile
+                <span class="dropdown-badge-soon">Soon</span>
+              </a>
+              <a href="#" class="dropdown-item" onclick="return false;">
+                <i data-lucide="settings" class="w-4 h-4"></i> Settings
+                <span class="dropdown-badge-soon">Soon</span>
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              <form action="/logout" method="POST" class="m-0">
+                <button type="submit" class="dropdown-item dropdown-item-danger w-full text-left">
+                  <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                </button>
+              </form>
+            </div>
+          </div>
         <% } else { %>
-          <a href="/login" class="btn-ghost text-sm py-1.5 px-4">Login</a>
-          <a href="/subscriptions/new" class="btn-gradient text-sm py-1.5 px-4">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Subscription
+          <a href="/login" class="btn-ghost text-sm py-1.5 px-4">
+            <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Sign In
+          </a>
+          <a href="/register" class="btn-gradient text-sm py-1.5 px-4">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Sign Up
           </a>
         <% } %>
       </div>
@@ -56,33 +114,56 @@
 
     <!-- Mobile Menu -->
     <div id="mobile-menu">
-      <a href="/"             class="nav-link <%= currentPath === '/' ? 'active' : '' %>">
-        <i data-lucide="home" class="w-4 h-4"></i> Home
-      </a>
-      <a href="/subscriptions" class="nav-link <%= currentPath.startsWith('/subscriptions') ? 'active' : '' %>">
-        <i data-lucide="credit-card" class="w-4 h-4"></i> Subscriptions
-      </a>
-      <a href="/about"        class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">
-        <i data-lucide="info" class="w-4 h-4"></i> About
-      </a>
-      <a href="/contact"      class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">
-        <i data-lucide="mail" class="w-4 h-4"></i> Contact
-      </a>
-      <div class="pt-2 border-t border-white/10 mt-2 flex flex-col gap-2">
-        <% if (currentUser) { %>
-          <span class="text-xs text-slate-500 px-2">Signed in as <strong class="text-slate-400"><%= currentUser.username %></strong></span>
-          <form action="/logout" method="POST" class="m-0">
-            <button type="submit" class="btn-ghost text-sm w-full justify-center">
-              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
-            </button>
-          </form>
-        <% } else { %>
-          <a href="/login" class="btn-ghost text-sm justify-center">Login</a>
-          <a href="/register" class="btn-gradient text-sm justify-center">
-            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Get Started
+      <% if (isAuthenticated) { %>
+        <a href="/subscriptions" class="nav-link <%= currentPath.startsWith('/subscriptions') ? 'active' : '' %>">
+          <i data-lucide="credit-card" class="w-4 h-4"></i> Subscriptions
+        </a>
+        <a href="/subscriptions/new" class="nav-link">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Subscription
+        </a>
+        <% if (isAdmin) { %>
+          <a href="/admin" class="nav-link <%= currentPath.startsWith('/admin') ? 'active' : '' %>">
+            <i data-lucide="shield" class="w-4 h-4"></i> Admin Panel
           </a>
         <% } %>
-      </div>
+        <div class="pt-2 border-t border-white/10 mt-2 flex flex-col gap-2">
+          <div class="flex items-center gap-2.5 px-2 py-1.5">
+            <div class="user-avatar user-avatar-sm">
+              <span><%= currentUser.username.charAt(0).toUpperCase() %></span>
+            </div>
+            <div>
+              <p class="text-sm text-white font-medium leading-tight"><%= currentUser.username %></p>
+              <p class="text-xs text-slate-500 leading-tight"><%= currentUser.email %></p>
+            </div>
+            <% if (isAdmin) { %>
+              <span class="badge-admin ml-auto">Admin</span>
+            <% } %>
+          </div>
+          <form action="/logout" method="POST" class="m-0">
+            <button type="submit" class="btn-ghost text-sm w-full justify-center">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out
+            </button>
+          </form>
+        </div>
+      <% } else { %>
+        <a href="/"        class="nav-link <%= currentPath === '/' ? 'active' : '' %>">
+          <i data-lucide="home" class="w-4 h-4"></i> Home
+        </a>
+        <a href="/about"   class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">
+          <i data-lucide="info" class="w-4 h-4"></i> About
+        </a>
+        <a href="/contact" class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">
+          <i data-lucide="mail" class="w-4 h-4"></i> Contact
+        </a>
+        <div class="pt-2 border-t border-white/10 mt-2 flex flex-col gap-2">
+          <a href="/login" class="btn-ghost text-sm justify-center">
+            <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Sign In
+          </a>
+          <a href="/register" class="btn-gradient text-sm justify-center">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Sign Up
+          </a>
+        </div>
+      <% } %>
     </div>
   </div>
 </nav>

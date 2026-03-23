@@ -4,14 +4,14 @@ const express  = require('express');
 const router   = express.Router();
 const bcrypt   = require('bcryptjs');
 const { getPrismaClient } = require('../utils/helpers');
+const { isGuest }          = require('../middleware/auth');
 
 const prisma      = getPrismaClient();
 const SALT_ROUNDS = 12;
 const EMAIL_RE    = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 // ── GET /register ──────────────────────────────────────────────────────────────
-router.get('/register', (req, res) => {
-  if (req.session.user) return res.redirect('/subscriptions');
+router.get('/register', isGuest, (_req, res) => {
   res.render('auth/register', {
     layout:      'layouts/auth',
     title:       'Create Account — SubTracker',
@@ -21,7 +21,7 @@ router.get('/register', (req, res) => {
 });
 
 // ── POST /register ─────────────────────────────────────────────────────────────
-router.post('/register', async (req, res, next) => {
+router.post('/register', isGuest, async (req, res, next) => {
   const { username, email, password, confirmPassword } = req.body;
   const formData    = { username: (username || '').trim(), email: (email || '').trim() };
   const fieldErrors = {};
@@ -89,7 +89,7 @@ router.post('/register', async (req, res, next) => {
       data: { username: cleanUsername, email: cleanEmail, passwordHash, role: 'user' },
     });
 
-    req.session.user = { id: user.id, username: user.username, email: user.email, role: user.role };
+    req.session.userId = user.id;
     req.flash('success', `Welcome to SubTracker, ${user.username}!`);
     res.redirect('/subscriptions');
   } catch (err) {
@@ -98,8 +98,7 @@ router.post('/register', async (req, res, next) => {
 });
 
 // ── GET /login ─────────────────────────────────────────────────────────────────
-router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/subscriptions');
+router.get('/login', isGuest, (_req, res) => {
   res.render('auth/login', {
     layout:   'layouts/auth',
     title:    'Sign In — SubTracker',
@@ -108,7 +107,7 @@ router.get('/login', (req, res) => {
 });
 
 // ── POST /login ────────────────────────────────────────────────────────────────
-router.post('/login', async (req, res, next) => {
+router.post('/login', isGuest, async (req, res, next) => {
   const { identifier, password } = req.body;
   const formData = { identifier: (identifier || '').trim() };
 
@@ -122,7 +121,6 @@ router.post('/login', async (req, res, next) => {
   try {
     const cleanId = formData.identifier.toLowerCase();
 
-    // Find by username (case-insensitive) OR email
     const user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -141,9 +139,15 @@ router.post('/login', async (req, res, next) => {
       });
     }
 
-    req.session.user = { id: user.id, username: user.username, email: user.email, role: user.role };
+    // Set session
+    req.session.userId = user.id;
+
+    // Redirect to saved returnTo URL or default
+    const returnTo = req.session.returnTo || '/subscriptions';
+    delete req.session.returnTo;
+
     req.flash('success', `Welcome back, ${user.username}!`);
-    res.redirect('/subscriptions');
+    res.redirect(returnTo);
   } catch (err) {
     next(err);
   }
