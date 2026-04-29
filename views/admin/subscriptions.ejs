@@ -1,0 +1,156 @@
+<div class="p-6 lg:p-8 space-y-6">
+
+  <!-- Page header -->
+  <div>
+    <h1 class="text-2xl font-bold text-white">All Subscriptions</h1>
+    <p class="text-sm text-slate-500 mt-1"><%= subscriptions.length %> total across all users</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="admin-card p-4">
+    <div class="flex flex-wrap gap-3 items-end">
+      <!-- User filter -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs text-slate-500 font-medium">Owner</label>
+        <select id="filter-user" class="form-input py-1.5 text-sm">
+          <option value="">All users</option>
+          <% users.forEach(u => { %>
+            <option value="<%= u.id %>"><%= u.username %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Category filter -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs text-slate-500 font-medium">Category</label>
+        <select id="filter-category" class="form-input py-1.5 text-sm">
+          <option value="">All categories</option>
+          <% categories.forEach(c => { %>
+            <option value="<%= c %>"><%= c %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Search -->
+      <div class="flex flex-col gap-1 flex-1 min-w-[180px]">
+        <label class="text-xs text-slate-500 font-medium">Search</label>
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+          <input id="filter-search" type="text" placeholder="Service name…" class="form-input py-1.5 text-sm pl-9" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Status tabs -->
+    <div class="flex gap-1 mt-4 flex-wrap" role="tablist">
+      <button class="admin-tab active" data-status="" role="tab">All</button>
+      <button class="admin-tab" data-status="active" role="tab">Active</button>
+      <button class="admin-tab" data-status="paused" role="tab">Paused</button>
+      <button class="admin-tab" data-status="cancelled" role="tab">Cancelled</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="admin-card">
+    <div class="overflow-x-auto">
+      <table class="data-table" id="subs-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Owner</th>
+            <th>Category</th>
+            <th class="text-right">Cost</th>
+            <th class="text-right">Monthly</th>
+            <th>Cycle</th>
+            <th>Status</th>
+            <th>Next Payment</th>
+          </tr>
+        </thead>
+        <tbody id="subs-tbody">
+          <% subscriptions.forEach(s => { %>
+            <tr class="sub-row subs-row"
+              data-user="<%= s.userId %>"
+              data-category="<%= s.category %>"
+              data-status="<%= s.status %>"
+              data-name="<%= s.name.toLowerCase() %>"
+            >
+              <td>
+                <p class="text-sm font-medium text-slate-200"><%= s.name %></p>
+              </td>
+              <td>
+                <a href="/admin/users/<%= s.user.id %>" class="text-xs text-slate-400 hover:text-white transition-colors">
+                  <%= s.user.username %>
+                </a>
+              </td>
+              <td class="text-xs text-slate-500"><%= s.category %></td>
+              <td class="text-right text-sm font-semibold text-slate-300">
+                <%= formatCurrency(s.cost, s.currency) %>
+              </td>
+              <td class="text-right text-sm text-slate-400">
+                €<%= normalizeToMonthly(Number(s.cost), s.billingCycle).toFixed(2) %>
+              </td>
+              <td class="text-xs text-slate-500 capitalize"><%= s.billingCycle %></td>
+              <td>
+                <span class="badge badge-<%= s.status %>"><%= s.status %></span>
+              </td>
+              <td class="text-xs text-slate-500">
+                <%= s.nextPayment ? new Date(s.nextPayment).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—' %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <div id="subs-no-results" class="hidden text-center py-10 text-slate-500 text-sm">
+        No subscriptions match your filters.
+      </div>
+    </div>
+
+    <!-- Footer count -->
+    <div class="px-4 py-3 border-t border-white/5 flex justify-between items-center text-xs text-slate-500">
+      <span id="subs-count"><%= subscriptions.length %> subscriptions</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const rows    = Array.from(document.querySelectorAll('.subs-row'));
+  const noRes   = document.getElementById('subs-no-results');
+  const countEl = document.getElementById('subs-count');
+  let activeStatus = '';
+
+  function applyFilters() {
+    const userId   = document.getElementById('filter-user').value;
+    const category = document.getElementById('filter-category').value;
+    const search   = document.getElementById('filter-search').value.toLowerCase();
+    let visible = 0;
+
+    rows.forEach(row => {
+      const matchUser   = !userId   || row.dataset.user     === userId;
+      const matchCat    = !category || row.dataset.category === category;
+      const matchStatus = !activeStatus || row.dataset.status === activeStatus;
+      const matchSearch = !search   || row.dataset.name.includes(search);
+      const show = matchUser && matchCat && matchStatus && matchSearch;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    noRes.classList.toggle('hidden', visible > 0);
+    countEl.textContent = visible + ' subscription' + (visible !== 1 ? 's' : '');
+  }
+
+  document.getElementById('filter-user').addEventListener('change', applyFilters);
+  document.getElementById('filter-category').addEventListener('change', applyFilters);
+  document.getElementById('filter-search').addEventListener('input', applyFilters);
+
+  document.querySelectorAll('.admin-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStatus = btn.dataset.status;
+      applyFilters();
+    });
+  });
+})();
+</script>

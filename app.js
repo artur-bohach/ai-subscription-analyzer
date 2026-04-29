@@ -68,10 +68,12 @@ app.use(loadUser);
 const indexRoutes        = require('./routes/index');
 const subscriptionRoutes = require('./routes/subscriptions');
 const authRoutes         = require('./routes/auth');
+const adminRoutes        = require('./routes/admin');
 
 app.use('/', indexRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 app.use('/', authRoutes);
+app.use('/admin', adminRoutes);
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'Admin' %> — SubTracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f97316'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='white'>⚡</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { purple: '#8B5CF6', blue: '#3B82F6', orange: '#F97316', red: '#EF4444' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+
+<body class="min-h-screen flex" style="background-color:#0A0A0F;">
+
+  <!-- ── Sidebar ────────────────────────────────────────────────────────────── -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <!-- Logo -->
+    <div class="admin-sidebar-logo">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#f97316,#ef4444);">
+          <i data-lucide="shield" class="w-4 h-4 text-white"></i>
+        </div>
+        <div>
+          <span class="font-bold text-sm text-white leading-tight block">SubTracker</span>
+          <span class="text-xs font-semibold uppercase tracking-widest" style="color:#f97316;">Admin</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Nav -->
+    <nav class="admin-nav">
+      <div class="admin-nav-section">
+        <p class="admin-nav-label">Overview</p>
+        <a href="/admin" class="admin-nav-item <%= currentPath === '/admin' ? 'active' : '' %>">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          Dashboard
+        </a>
+      </div>
+
+      <div class="admin-nav-section">
+        <p class="admin-nav-label">Management</p>
+        <a href="/admin/users" class="admin-nav-item <%= currentPath.startsWith('/admin/users') ? 'active' : '' %>">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          Users
+        </a>
+        <a href="/admin/subscriptions" class="admin-nav-item <%= currentPath === '/admin/subscriptions' ? 'active' : '' %>">
+          <i data-lucide="credit-card" class="w-4 h-4"></i>
+          Subscriptions
+        </a>
+      </div>
+
+      <div class="admin-nav-section" style="margin-top:auto;">
+        <div class="admin-nav-divider"></div>
+        <a href="/subscriptions" class="admin-nav-item">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Back to App
+        </a>
+        <form action="/logout" method="POST" class="m-0">
+          <button type="submit" class="admin-nav-item w-full text-left" style="color:#f87171;">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Sign Out
+          </button>
+        </form>
+      </div>
+    </nav>
+
+    <!-- User chip at bottom -->
+    <div class="admin-user-chip">
+      <div class="user-avatar user-avatar-sm" style="background:linear-gradient(135deg,#f97316,#ef4444);">
+        <span><%= currentUser.username.charAt(0).toUpperCase() %></span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs font-semibold text-white truncate"><%= currentUser.username %></p>
+        <p class="text-xs truncate" style="color:#f97316;">Administrator</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main area ──────────────────────────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Top bar (mobile + breadcrumb) -->
+    <header class="admin-topbar">
+      <button id="admin-sidebar-toggle" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center gap-2 text-sm min-w-0">
+        <a href="/admin" class="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0">Admin</a>
+        <% if (currentPath !== '/admin') { %>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-600 flex-shrink-0"></i>
+          <span class="text-slate-300 font-medium truncate"><%= title %></span>
+        <% } %>
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        <span class="badge-admin hidden sm:inline-flex">Admin Panel</span>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    <%- include('../partials/flash') %>
+
+    <!-- Page content -->
+    <main class="flex-1 overflow-auto admin-main">
+      <%- body %>
+    </main>
+  </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="admin-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
+
+  <script src="/js/validation.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
