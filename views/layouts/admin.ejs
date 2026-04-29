@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title || 'Admin' %> — SubTracker</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f97316'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='white'>⚡</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111111'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%2300FF87'>S</text></svg>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,9 +15,7 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            brand: { purple: '#8B5CF6', blue: '#3B82F6', orange: '#F97316', red: '#EF4444' }
-          },
+          colors: { neon: '#00FF87', danger: '#FF4444', warn: '#FFB800' },
           fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] }
         }
       }
@@ -28,19 +26,17 @@
   <link rel="stylesheet" href="/css/styles.css" />
 </head>
 
-<body class="min-h-screen flex" style="background-color:#0A0A0F;">
+<body class="min-h-screen flex" style="background-color:var(--bg, #000)">
 
   <!-- ── Sidebar ────────────────────────────────────────────────────────────── -->
   <aside class="admin-sidebar" id="admin-sidebar">
     <!-- Logo -->
     <div class="admin-sidebar-logo">
-      <a href="/" class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#f97316,#ef4444);">
-          <i data-lucide="shield" class="w-4 h-4 text-white"></i>
-        </div>
+      <a href="/" class="flex items-center gap-2.5" style="text-decoration:none">
+        <div class="nav-logo-icon">S</div>
         <div>
-          <span class="font-bold text-sm text-white leading-tight block">SubTracker</span>
-          <span class="text-xs font-semibold uppercase tracking-widest" style="color:#f97316;">Admin</span>
+          <span class="font-bold text-sm leading-tight block" style="color:var(--text)">SubTracker</span>
+          <span class="text-xs font-semibold uppercase tracking-widest" style="color:var(--neon)">Admin</span>
         </div>
       </a>
     </div>
@@ -74,7 +70,7 @@
           Back to App
         </a>
         <form action="/logout" method="POST" class="m-0">
-          <button type="submit" class="admin-nav-item w-full text-left" style="color:#f87171;">
+          <button type="submit" class="admin-nav-item w-full text-left" style="color:var(--danger)">
             <i data-lucide="log-out" class="w-4 h-4"></i>
             Sign Out
           </button>
@@ -84,12 +80,12 @@
 
     <!-- User chip at bottom -->
     <div class="admin-user-chip">
-      <div class="user-avatar user-avatar-sm" style="background:linear-gradient(135deg,#f97316,#ef4444);">
+      <div class="nav-avatar" style="width:28px;height:28px;font-size:11px;flex-shrink:0">
         <span><%= currentUser.username.charAt(0).toUpperCase() %></span>
       </div>
       <div class="min-w-0">
-        <p class="text-xs font-semibold text-white truncate"><%= currentUser.username %></p>
-        <p class="text-xs truncate" style="color:#f97316;">Administrator</p>
+        <p class="text-xs font-semibold truncate" style="color:var(--text)"><%= currentUser.username %></p>
+        <p class="text-xs truncate" style="color:var(--neon)">Administrator</p>
       </div>
     </div>
   </aside>
@@ -127,6 +123,7 @@
   <div id="admin-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
 
   <script src="/js/validation.js"></script>
+  <script src="/js/app.js"></script>
   <script src="/js/admin.js"></script>
   <script>lucide.createIcons();</script>
 </body>

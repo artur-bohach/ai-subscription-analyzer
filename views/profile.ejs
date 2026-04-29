@@ -1,0 +1,566 @@
+<%
+// Avatar color derived from first char of username
+const avatarColors = {
+  A:'#8B5CF6,#6D28D9', B:'#3B82F6,#1D4ED8', C:'#10B981,#059669',
+  D:'#F59E0B,#D97706', E:'#EF4444,#DC2626', F:'#EC4899,#DB2777',
+  G:'#06B6D4,#0891B2', H:'#8B5CF6,#7C3AED', I:'#3B82F6,#2563EB',
+  J:'#F97316,#EA580C', K:'#10B981,#10B981', L:'#6366F1,#4F46E5',
+  M:'#F43F5E,#E11D48', N:'#14B8A6,#0D9488', O:'#A855F7,#9333EA',
+  P:'#0EA5E9,#0284C7', Q:'#84CC16,#65A30D', R:'#F97316,#C2410C',
+  S:'#8B5CF6,#7C3AED', T:'#06B6D4,#0E7490', U:'#EF4444,#B91C1C',
+  V:'#10B981,#047857', W:'#F59E0B,#B45309', X:'#EC4899,#BE185D',
+  Y:'#3B82F6,#1E40AF', Z:'#6366F1,#4338CA',
+};
+const firstChar = profileUser.username.charAt(0).toUpperCase();
+const gradientPair = avatarColors[firstChar] || '139,92,246,#6D28D9';
+const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, ${gradientPair.split(',')[1]})`;
+%>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- ── LEFT: Profile Card ─────────────────────────────────────────────────── -->
+    <div class="lg:col-span-1">
+      <div class="pf-card sticky top-24">
+
+        <!-- Avatar + identity -->
+        <div class="pf-card-top">
+          <div class="pf-avatar" style="background:<%= avatarGradient %>;">
+            <%= profileUser.username.charAt(0).toUpperCase() %>
+          </div>
+          <h2 class="text-xl font-bold text-white mt-4 text-center"><%= profileUser.username %></h2>
+          <p class="text-sm text-slate-500 text-center mt-1 truncate max-w-full px-4"><%= profileUser.email %></p>
+          <div class="mt-3">
+            <% if (profileUser.role === 'admin') { %>
+              <span class="badge-admin">Administrator</span>
+            <% } else { %>
+              <span class="pf-badge-user">User</span>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Meta info -->
+        <div class="pf-card-meta">
+          <div class="pf-meta-row">
+            <span class="pf-meta-label">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Member since
+            </span>
+            <span class="pf-meta-value">
+              <%= new Date(profileUser.createdAt).toLocaleDateString('en-US', {month:'long', year:'numeric'}) %>
+            </span>
+          </div>
+          <div class="pf-meta-row">
+            <span class="pf-meta-label">
+              <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Subscriptions
+            </span>
+            <span class="pf-meta-value"><%= stats.subCount %> total</span>
+          </div>
+          <div class="pf-meta-row">
+            <span class="pf-meta-label">
+              <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Monthly spend
+            </span>
+            <span class="pf-meta-value font-semibold" style="color:var(--neon)">€<%= stats.monthlyTotal.toFixed(2) %></span>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="px-5 pb-5 space-y-1.5">
+          <a href="/dashboard" class="pf-sidebar-link">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+          </a>
+          <a href="/subscriptions" class="pf-sidebar-link">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> My Subscriptions
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Settings Tabs ───────────────────────────────────────────────── -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Tab Navigation -->
+      <div class="pf-tabs" role="tablist">
+        <button class="pf-tab <%= activeTab === 'profile'  ? 'active' : '' %>" data-tab="profile"   role="tab">
+          <i data-lucide="user" class="w-3.5 h-3.5"></i> Edit Profile
+        </button>
+        <button class="pf-tab <%= activeTab === 'password' ? 'active' : '' %>" data-tab="password"  role="tab">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i> Password
+        </button>
+        <button class="pf-tab <%= activeTab === 'prefs'    ? 'active' : '' %>" data-tab="prefs"     role="tab">
+          <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Preferences
+        </button>
+        <button class="pf-tab <%= activeTab === 'danger'   ? 'active' : '' %> pf-tab-danger" data-tab="danger" role="tab">
+          <i data-lucide="triangle-alert" class="w-3.5 h-3.5"></i> Danger Zone
+        </button>
+      </div>
+
+      <!-- ── Tab 1: Edit Profile ──────────────────────────────────────────────── -->
+      <div id="tab-profile" class="pf-panel <%= activeTab === 'profile' ? '' : 'hidden' %>">
+        <div class="pf-section-header">
+          <h3 class="pf-section-title">Edit Profile</h3>
+          <p class="pf-section-desc">Update your username and email address.</p>
+        </div>
+        <form id="profile-form" action="/profile" method="POST" novalidate class="pf-form-body">
+          <!-- Username -->
+          <div class="pf-field">
+            <label for="pf-username" class="form-label">
+              <i data-lucide="user" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Username
+            </label>
+            <input
+              id="pf-username"
+              name="username"
+              type="text"
+              class="form-input<% if (fieldErrors.username) { %> is-error<% } %>"
+              value="<%= profileUser.username %>"
+              maxlength="30"
+              autocomplete="username"
+              autocapitalize="none"
+            />
+            <% if (fieldErrors.username) { %>
+              <p class="field-error-msg show">⚠ <%= fieldErrors.username %></p>
+            <% } %>
+          </div>
+
+          <!-- Email -->
+          <div class="pf-field">
+            <label for="pf-email" class="form-label">
+              <i data-lucide="mail" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Email address
+            </label>
+            <input
+              id="pf-email"
+              name="email"
+              type="email"
+              class="form-input<% if (fieldErrors.email) { %> is-error<% } %>"
+              value="<%= profileUser.email %>"
+              autocomplete="email"
+            />
+            <% if (fieldErrors.email) { %>
+              <p class="field-error-msg show">⚠ <%= fieldErrors.email %></p>
+            <% } %>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="btn-primary" style="font-size:13px;padding:8px 18px">
+              <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ── Tab 2: Change Password ───────────────────────────────────────────── -->
+      <div id="tab-password" class="pf-panel <%= activeTab === 'password' ? '' : 'hidden' %>">
+        <div class="pf-section-header">
+          <h3 class="pf-section-title">Change Password</h3>
+          <p class="pf-section-desc">Use a strong password you don't use elsewhere.</p>
+        </div>
+        <form id="pwd-form" action="/profile/password" method="POST" novalidate class="pf-form-body">
+          <!-- Current password -->
+          <div class="pf-field">
+            <label for="pf-current-pwd" class="form-label">
+              <i data-lucide="lock" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Current password
+            </label>
+            <div class="relative">
+              <input
+                id="pf-current-pwd"
+                name="currentPassword"
+                type="password"
+                class="form-input pr-11<% if (pwdErrors.currentPassword) { %> is-error<% } %>"
+                placeholder="Your current password"
+                autocomplete="current-password"
+              />
+              <button type="button" class="pwd-toggle" data-toggle-password="pf-current-pwd" aria-label="Toggle">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <% if (pwdErrors.currentPassword) { %>
+              <p class="field-error-msg show">⚠ <%= pwdErrors.currentPassword %></p>
+            <% } %>
+          </div>
+
+          <!-- New password -->
+          <div class="pf-field">
+            <label for="pf-new-pwd" class="form-label">
+              <i data-lucide="key" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              New password
+            </label>
+            <div class="relative">
+              <input
+                id="pf-new-pwd"
+                name="newPassword"
+                type="password"
+                class="form-input pr-11<% if (pwdErrors.newPassword) { %> is-error<% } %>"
+                placeholder="Min. 6 characters"
+                autocomplete="new-password"
+              />
+              <button type="button" class="pwd-toggle" data-toggle-password="pf-new-pwd" aria-label="Toggle">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <% if (pwdErrors.newPassword) { %>
+              <p class="field-error-msg show">⚠ <%= pwdErrors.newPassword %></p>
+            <% } %>
+            <!-- Strength bar (reuses existing CSS) -->
+            <div class="pwr-wrap mt-2" id="pf-pwr-wrap">
+              <div class="pwr-bar" aria-hidden="true">
+                <span class="pwr-seg" id="pf-pwr-s1"></span>
+                <span class="pwr-seg" id="pf-pwr-s2"></span>
+                <span class="pwr-seg" id="pf-pwr-s3"></span>
+                <span class="pwr-seg" id="pf-pwr-s4"></span>
+              </div>
+              <span class="pwr-label" id="pf-pwr-label"></span>
+            </div>
+          </div>
+
+          <!-- Confirm new password -->
+          <div class="pf-field">
+            <label for="pf-confirm-pwd" class="form-label">
+              <i data-lucide="lock" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Confirm new password
+            </label>
+            <div class="relative">
+              <input
+                id="pf-confirm-pwd"
+                name="confirmNewPassword"
+                type="password"
+                class="form-input pr-11<% if (pwdErrors.confirmNewPassword) { %> is-error<% } %>"
+                placeholder="Repeat new password"
+                autocomplete="new-password"
+              />
+              <button type="button" class="pwd-toggle" data-toggle-password="pf-confirm-pwd" aria-label="Toggle">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <% if (pwdErrors.confirmNewPassword) { %>
+              <p class="field-error-msg show">⚠ <%= pwdErrors.confirmNewPassword %></p>
+            <% } %>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="btn-primary" style="font-size:13px;padding:8px 18px">
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Update Password
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ── Tab 3: Preferences (UI stub) ────────────────────────────────────── -->
+      <div id="tab-prefs" class="pf-panel <%= activeTab === 'prefs' ? '' : 'hidden' %>">
+        <div class="pf-section-header">
+          <h3 class="pf-section-title">Preferences</h3>
+          <p class="pf-section-desc">Customize your SubTracker experience.</p>
+        </div>
+        <div class="pf-form-body space-y-6">
+
+          <!-- Currency -->
+          <div class="pf-field">
+            <label class="form-label">
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Default Currency
+            </label>
+            <select class="form-input opacity-60 cursor-not-allowed" disabled>
+              <option>EUR — Euro</option>
+              <option>USD — US Dollar</option>
+              <option>GBP — British Pound</option>
+              <option>PLN — Polish Zloty</option>
+            </select>
+            <p class="text-xs text-slate-600 mt-1.5">Currency preferences — coming soon</p>
+          </div>
+
+          <!-- Notifications -->
+          <div>
+            <p class="form-label mb-3">
+              <i data-lucide="bell" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Notifications
+            </p>
+            <div class="space-y-3">
+              <% [
+                ['Renewal reminders (3 days before)', true],
+                ['Monthly spending summary', false],
+                ['New subscription alerts', true],
+              ].forEach(([label, checked]) => { %>
+                <label class="pf-toggle-row pf-toggle-disabled">
+                  <span class="text-sm text-slate-400"><%= label %></span>
+                  <div class="pf-toggle <%= checked ? 'pf-toggle-on' : '' %>">
+                    <span class="pf-toggle-knob"></span>
+                  </div>
+                </label>
+              <% }) %>
+              <p class="text-xs text-slate-600 mt-2">Notification settings — coming soon</p>
+            </div>
+          </div>
+
+          <!-- Theme -->
+          <div>
+            <p class="form-label mb-3">
+              <i data-lucide="moon" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
+              Theme
+            </p>
+            <div class="flex gap-3">
+              <label class="pf-theme-option pf-theme-selected">
+                <i data-lucide="moon" class="w-4 h-4"></i>
+                <span class="text-xs font-medium">Dark</span>
+              </label>
+              <label class="pf-theme-option pf-theme-disabled">
+                <i data-lucide="sun" class="w-4 h-4"></i>
+                <span class="text-xs font-medium">Light</span>
+                <span class="pf-badge-soon">Soon</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Tab 4: Danger Zone ───────────────────────────────────────────────── -->
+      <div id="tab-danger" class="pf-panel <%= activeTab === 'danger' ? '' : 'hidden' %>">
+        <div class="pf-section-header pf-section-header-danger">
+          <h3 class="pf-section-title" style="color:var(--danger)">Danger Zone</h3>
+          <p class="pf-section-desc">These actions are irreversible. Please proceed carefully.</p>
+        </div>
+        <div class="pf-form-body">
+          <div class="pf-danger-box">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(239,68,68,0.15);">
+                <i data-lucide="trash-2" class="w-5 h-5" style="color:var(--danger)"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-slate-200 text-sm">Delete Account</p>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Permanently deletes your account and all <%= stats.subCount %> subscription(s) associated with it. This action cannot be undone.
+                </p>
+              </div>
+              <button
+                id="open-delete-modal-btn"
+                class="btn-danger flex-shrink-0 text-xs"
+                onclick="document.getElementById('delete-account-modal').classList.remove('hidden')"
+              >
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right col -->
+  </div><!-- /grid -->
+</div>
+
+<!-- ── Delete Account Modal ───────────────────────────────────────────────────── -->
+<div id="delete-account-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="modal-box max-w-md" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.15);">
+        <i data-lucide="triangle-alert" class="w-5 h-5" style="color:var(--danger)"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-white">Delete Account</h3>
+        <p class="text-xs text-slate-500 mt-0.5">This action is permanent and cannot be undone</p>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="pf-delete-warning mb-5">
+      <p class="text-sm text-slate-300">This will permanently delete:</p>
+      <ul class="text-sm text-slate-400 mt-2 space-y-1 list-disc list-inside">
+        <li>Your account (<strong class="text-slate-300"><%= profileUser.username %></strong>)</li>
+        <li>All <strong class="text-slate-300"><%= stats.subCount %></strong> subscription(s)</li>
+        <li>All associated data</li>
+      </ul>
+    </div>
+
+    <!-- Confirmation input -->
+    <div class="mb-5">
+      <label for="confirm-username-input" class="form-label">
+        Type <strong class="text-white font-mono"><%= profileUser.username %></strong> to confirm
+      </label>
+      <input
+        id="confirm-username-input"
+        type="text"
+        class="form-input"
+        placeholder="<%= profileUser.username %>"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="btn-ghost flex-1 justify-center text-sm">
+        Cancel
+      </button>
+      <form id="delete-account-form" action="/profile?_method=DELETE" method="POST" class="flex-1 m-0">
+        <input type="hidden" name="confirmUsername" id="hidden-confirm-username" value="" />
+        <button
+          type="submit"
+          id="delete-confirm-btn"
+          class="btn-danger w-full justify-center text-sm"
+          disabled
+        >
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete My Account
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+  // ── Tab switching ──────────────────────────────────────────────────────────
+  const tabs   = document.querySelectorAll('.pf-tab');
+  const panels = document.querySelectorAll('.pf-panel');
+
+  function activateTab(name) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    panels.forEach(p => {
+      const show = p.id === 'tab-' + name;
+      p.classList.toggle('hidden', !show);
+    });
+    history.replaceState(null, '', '/profile?tab=' + name);
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => activateTab(t.dataset.tab)));
+
+  // ── Profile form validation ────────────────────────────────────────────────
+  const pfForm = document.getElementById('profile-form');
+  if (pfForm) {
+    const usernameEl = document.getElementById('pf-username');
+    const emailEl    = document.getElementById('pf-email');
+
+    function validateUsername(el) {
+      const v = el.value.trim();
+      if (!v)             return setFieldError(el, 'Username is required.');
+      if (v.length < 3)   return setFieldError(el, 'Must be at least 3 characters.');
+      if (v.length > 30)  return setFieldError(el, 'Must be 30 characters or fewer.');
+      if (!/^[a-zA-Z0-9_-]+$/.test(v)) return setFieldError(el, 'Letters, numbers, _ and - only.');
+      setFieldValid(el);
+    }
+    function validateEmail(el) {
+      const v = el.value.trim();
+      if (!v || !EMAIL_RE.test(v)) return setFieldError(el, 'Enter a valid email address.');
+      setFieldValid(el);
+    }
+
+    [usernameEl, emailEl].forEach(el => {
+      el.addEventListener('blur', () => {
+        el === usernameEl ? validateUsername(el) : validateEmail(el);
+      });
+      el.addEventListener('input', () => {
+        if (el.classList.contains('is-error') || el.classList.contains('is-valid')) {
+          el === usernameEl ? validateUsername(el) : validateEmail(el);
+        }
+      });
+    });
+
+    pfForm.addEventListener('submit', e => {
+      validateUsername(usernameEl);
+      validateEmail(emailEl);
+      if (pfForm.querySelector('.is-error')) {
+        e.preventDefault();
+        shakeSubmitBtn(pfForm);
+      }
+    });
+  }
+
+  // ── Password form validation + strength ───────────────────────────────────
+  const pwdForm    = document.getElementById('pwd-form');
+  const newPwdEl   = document.getElementById('pf-new-pwd');
+  const confPwdEl  = document.getElementById('pf-confirm-pwd');
+
+  if (newPwdEl) {
+    newPwdEl.addEventListener('input', () => {
+      // Reuse existing strength bar infrastructure (IDs differ — manual update)
+      const v = newPwdEl.value;
+      let score = 0;
+      if (v.length >= 6)          score++;
+      if (v.length >= 10)         score++;
+      if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+      if (/[^A-Za-z0-9]/.test(v) || /[0-9]/.test(v)) score++;
+
+      const segs   = ['pf-pwr-s1','pf-pwr-s2','pf-pwr-s3','pf-pwr-s4'];
+      const bar    = document.getElementById('pf-pwr-s1')?.parentElement;
+      const label  = document.getElementById('pf-pwr-label');
+      const levels = ['pwr-weak','pwr-medium','pwr-strong','pwr-very-strong'];
+      const names  = ['Weak','Medium','Strong','Very Strong'];
+
+      if (!bar) return;
+      levels.forEach(l => bar.classList.remove(l));
+      if (v.length === 0) { if (label) label.textContent = ''; return; }
+      bar.classList.add(levels[score - 1] || 'pwr-weak');
+      if (label) label.textContent = names[score - 1] || 'Weak';
+    });
+  }
+
+  if (pwdForm) {
+    const currPwdEl = document.getElementById('pf-current-pwd');
+
+    function validateNewPwd() {
+      const v = newPwdEl.value;
+      if (!v)            return setFieldError(newPwdEl, 'New password is required.');
+      if (v.length < 6)  return setFieldError(newPwdEl, 'Must be at least 6 characters.');
+      setFieldValid(newPwdEl);
+    }
+    function validateConfirm() {
+      if (confPwdEl.value !== newPwdEl.value) return setFieldError(confPwdEl, 'Passwords do not match.');
+      if (!confPwdEl.value) return setFieldError(confPwdEl, 'Please confirm your new password.');
+      setFieldValid(confPwdEl);
+    }
+
+    newPwdEl.addEventListener('blur',  validateNewPwd);
+    confPwdEl.addEventListener('blur', validateConfirm);
+    newPwdEl.addEventListener('input', () => {
+      if (newPwdEl.classList.contains('is-error') || newPwdEl.classList.contains('is-valid')) validateNewPwd();
+      if (confPwdEl.value) validateConfirm();
+    });
+    confPwdEl.addEventListener('input', () => {
+      if (confPwdEl.classList.contains('is-error') || confPwdEl.classList.contains('is-valid')) validateConfirm();
+    });
+
+    pwdForm.addEventListener('submit', e => {
+      if (!currPwdEl.value) setFieldError(currPwdEl, 'Current password is required.');
+      validateNewPwd();
+      validateConfirm();
+      if (pwdForm.querySelector('.is-error')) {
+        e.preventDefault();
+        shakeSubmitBtn(pwdForm);
+      }
+    });
+  }
+
+  // ── Delete account modal ───────────────────────────────────────────────────
+  const expectedUsername = '<%= profileUser.username %>';
+  const confirmInput     = document.getElementById('confirm-username-input');
+  const confirmBtn       = document.getElementById('delete-confirm-btn');
+  const hiddenInput      = document.getElementById('hidden-confirm-username');
+
+  if (confirmInput) {
+    confirmInput.addEventListener('input', () => {
+      const match = confirmInput.value === expectedUsername;
+      confirmBtn.disabled = !match;
+      hiddenInput.value   = confirmInput.value;
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeDeleteModal();
+  });
+})();
+
+function closeDeleteModal() {
+  document.getElementById('delete-account-modal').classList.add('hidden');
+  const inp = document.getElementById('confirm-username-input');
+  if (inp) inp.value = '';
+  const btn = document.getElementById('delete-confirm-btn');
+  if (btn) btn.disabled = true;
+}
+</script>

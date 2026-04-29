@@ -69,11 +69,13 @@ const indexRoutes        = require('./routes/index');
 const subscriptionRoutes = require('./routes/subscriptions');
 const authRoutes         = require('./routes/auth');
 const adminRoutes        = require('./routes/admin');
+const profileRoutes      = require('./routes/profile');
 
 app.use('/', indexRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/profile', profileRoutes);
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {

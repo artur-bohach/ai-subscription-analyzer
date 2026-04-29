@@ -1,22 +1,19 @@
-<!-- ── Login Page (FR5 stub) ───────────────────────────────────────────────── -->
-<section class="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-16">
-  <div class="w-full max-w-md">
+<section class="auth-page">
+  <div class="auth-card-wrap">
 
     <!-- Logo / Brand -->
-    <div class="text-center mb-8">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-purple-500/30">
-        <i data-lucide="layers" class="w-8 h-8 text-white"></i>
-      </div>
-      <h1 class="text-3xl font-extrabold text-white">Welcome back</h1>
-      <p class="text-slate-400 mt-2 text-sm">Sign in to SubTracker</p>
+    <div class="auth-logo">
+      <div class="auth-logo-icon">S</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to SubTracker</p>
     </div>
 
     <!-- Login Card -->
-    <div class="glass p-8 rounded-2xl">
+    <div class="auth-card">
       <form action="/login" method="POST" novalidate>
 
         <!-- Username -->
-        <div class="mb-5">
+        <div class="pf-field">
           <label for="username" class="form-label">
             <i data-lucide="user" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
             Username
@@ -33,7 +30,7 @@
         </div>
 
         <!-- Password -->
-        <div class="mb-6">
+        <div class="pf-field">
           <label for="password" class="form-label">
             <i data-lucide="lock" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
             Password
@@ -49,27 +46,21 @@
           />
         </div>
 
-        <button type="submit" class="btn-gradient w-full justify-center py-3 text-base">
+        <button type="submit" class="btn-primary w-full justify-center" style="font-size:15px;padding:11px">
           <i data-lucide="log-in" class="w-5 h-5"></i>
           Sign In
         </button>
       </form>
 
-      <!-- Demo credentials hint -->
-      <div class="mt-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-        <p class="text-xs text-purple-300 text-center font-medium mb-1">
-          <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1"></i>
-          Demo Credentials
-        </p>
-        <div class="flex justify-center gap-6 text-xs text-slate-400">
-          <span>Username: <code class="text-purple-300 font-mono">admin</code></span>
-          <span>Password: <code class="text-purple-300 font-mono">admin123</code></span>
-        </div>
+      <!-- Demo hint -->
+      <div class="auth-hint">
+        <i data-lucide="info" class="w-3.5 h-3.5" style="color:var(--neon);flex-shrink:0"></i>
+        <span>Demo: <code>admin</code> / <code>admin123</code></span>
       </div>
     </div>
 
-    <p class="text-center text-xs text-slate-600 mt-6">
-      Authentication is a placeholder for FR5. Full session management coming soon.
+    <p class="text-center" style="font-size:12px;color:var(--muted2);margin-top:20px">
+      Don't have an account? <a href="/register" style="color:var(--neon);text-decoration:none">Sign up →</a>
     </p>
   </div>
 </section>

@@ -6,10 +6,8 @@
     <div class="auth-brand-inner">
       <!-- Logo -->
       <a href="/" class="auth-brand-logo">
-        <div class="auth-logo-icon">
-          <i data-lucide="layers" class="w-7 h-7 text-white"></i>
-        </div>
-        <span class="text-xl font-bold text-white">Sub<span class="gradient-text">Tracker</span></span>
+        <div class="nav-logo-icon">S</div>
+        <span class="text-xl font-bold" style="color:var(--text)">Sub<span style="color:var(--neon)">Tracker</span></span>
       </a>
 
       <!-- Headline -->
@@ -26,17 +24,17 @@
       <!-- Stats -->
       <div class="auth-brand-stats">
         <div class="auth-stat">
-          <p class="text-2xl font-bold gradient-text">100%</p>
+          <p style="font-size:22px;font-weight:700;color:var(--neon)">100%</p>
           <p class="text-xs text-slate-500 mt-0.5">Private &amp; Secure</p>
         </div>
         <div class="auth-stat-divider"></div>
         <div class="auth-stat">
-          <p class="text-2xl font-bold gradient-text">€/$ Multi</p>
+          <p style="font-size:22px;font-weight:700;color:var(--neon)">€/$ Multi</p>
           <p class="text-xs text-slate-500 mt-0.5">Currency</p>
         </div>
         <div class="auth-stat-divider"></div>
         <div class="auth-stat">
-          <p class="text-2xl font-bold gradient-text">10+</p>
+          <p style="font-size:22px;font-weight:700;color:var(--neon)">10+</p>
           <p class="text-xs text-slate-500 mt-0.5">Categories</p>
         </div>
       </div>
@@ -55,7 +53,7 @@
         <h2 class="text-2xl font-bold text-white">Sign in to SubTracker</h2>
         <p class="text-slate-400 text-sm mt-1.5">
           Don't have an account?
-          <a href="/register" class="text-purple-400 hover:text-purple-300 font-medium transition-colors">Create one free</a>
+          <a href="/register" style="color:var(--neon);font-weight:500;text-decoration:none">Create one free</a>
         </p>
       </div>
 
@@ -88,7 +86,7 @@
               <i data-lucide="lock" class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5"></i>
               Password
             </label>
-            <a href="/forgot-password" class="text-xs text-slate-400 hover:text-purple-400 transition-colors">
+            <a href="/forgot-password" style="font-size:12px;color:var(--muted2);text-decoration:none">
               Forgot password?
             </a>
           </div>
@@ -127,7 +125,7 @@
         </div>
 
         <!-- Submit -->
-        <button type="submit" class="btn-gradient w-full justify-center py-3 text-base">
+        <button type="submit" class="btn-primary w-full justify-center" style="font-size:15px;padding:11px">
           <i data-lucide="log-in" class="w-5 h-5"></i>
           Sign In
         </button>
@@ -139,19 +137,15 @@
       <!-- Register link -->
       <p class="text-center text-sm text-slate-400">
         New to SubTracker?
-        <a href="/register" class="text-purple-400 hover:text-purple-300 font-medium transition-colors">Create a free account</a>
+        <a href="/register" style="color:var(--neon);font-weight:500;text-decoration:none">Create a free account</a>
       </p>
 
       <!-- Demo credentials -->
-      <div class="mt-6 p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
-        <p class="text-xs text-purple-300 text-center font-medium mb-2">
-          <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1"></i>
-          Demo Credentials
-        </p>
-        <div class="flex justify-center gap-6 text-xs text-slate-400">
-          <span>Login: <code class="text-purple-300 font-mono">admin</code></span>
-          <span>Password: <code class="text-purple-300 font-mono">admin123</code></span>
-        </div>
+      <div class="auth-hint" style="margin-top:20px;justify-content:center;flex-direction:column;align-items:flex-start;gap:6px">
+        <span style="color:var(--neon);font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i> Demo Credentials
+        </span>
+        <span>Login: <code>admin</code> &nbsp;/&nbsp; Password: <code>admin123</code></span>
       </div>
 
     </div>
