@@ -91,7 +91,7 @@ router.post('/register', isGuest, async (req, res, next) => {
 
     req.session.userId = user.id;
     req.flash('success', `Welcome to SubTracker, ${user.username}!`);
-    res.redirect('/subscriptions');
+    res.redirect('/dashboard');
   } catch (err) {
     next(err);
   }
@@ -143,7 +143,7 @@ router.post('/login', isGuest, async (req, res, next) => {
     req.session.userId = user.id;
 
     // Redirect to saved returnTo URL or default
-    const returnTo = req.session.returnTo || '/subscriptions';
+    const returnTo = req.session.returnTo || '/dashboard';
     delete req.session.returnTo;
 
     req.flash('success', `Welcome back, ${user.username}!`);

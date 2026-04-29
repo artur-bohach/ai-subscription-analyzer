@@ -574,6 +574,146 @@ main { animation: pageFadeIn 0.22s ease-out; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   ── Personal Dashboard
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Stat cards ───────────────────────────────────────────────────────────── */
+.db-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.db-stat-card:hover { transform: translateY(-2px); }
+.db-stat-purple:hover { border-color: rgba(139,92,246,0.3); box-shadow: 0 12px 40px rgba(139,92,246,0.10); }
+.db-stat-blue:hover   { border-color: rgba(59,130,246,0.3);  box-shadow: 0 12px 40px rgba(59,130,246,0.10); }
+.db-stat-green:hover  { border-color: rgba(16,185,129,0.3);  box-shadow: 0 12px 40px rgba(16,185,129,0.10); }
+.db-stat-orange:hover { border-color: rgba(249,115,22,0.3);  box-shadow: 0 12px 40px rgba(249,115,22,0.10); }
+
+.db-stat-icon-wrap {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.db-stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.db-stat-value {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.db-stat-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── Generic card ─────────────────────────────────────────────────────────── */
+.db-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.db-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.db-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+/* ── Donut center label ───────────────────────────────────────────────────── */
+.db-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ── Category icon pill (upcoming payments) ───────────────────────────────── */
+.db-cat-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.db-cat-urgent {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.25);
+  color: #fca5a5;
+}
+
+/* ── Progress bar (breakdown) ─────────────────────────────────────────────── */
+.db-progress-bar {
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.85;
+}
+
+/* ── Tooltip for disabled buttons ────────────────────────────────────────── */
+.db-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e30;
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+.group:hover .db-tooltip { opacity: 1; }
+
+/* ── Empty state icon ─────────────────────────────────────────────────────── */
+.db-empty-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 20px;
+  background: rgba(139,92,246,0.12);
+  border: 1px solid rgba(139,92,246,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    ── Admin Panel
    ═══════════════════════════════════════════════════════════════════════════ */
 

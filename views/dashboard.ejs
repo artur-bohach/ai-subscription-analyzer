@@ -1,0 +1,369 @@
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<% if (!hasSubscriptions) { %>
+<!-- ── Empty State ──────────────────────────────────────────────────────────── -->
+<div class="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
+  <div class="db-empty-icon mb-6">
+    <i data-lucide="wallet" class="w-10 h-10" style="color:#8B5CF6;"></i>
+  </div>
+  <h2 class="text-2xl font-bold text-white mb-3">No subscriptions yet</h2>
+  <p class="text-slate-400 max-w-sm mb-8 text-sm leading-relaxed">
+    Add your first subscription to start tracking your spending, visualize costs by category, and take control of your budget.
+  </p>
+  <a href="/subscriptions/new" class="btn-gradient text-sm px-6 py-2.5">
+    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+    Add your first subscription
+  </a>
+  <% if (totalSubs > 0) { %>
+    <p class="text-xs text-slate-600 mt-4">You have <%= totalSubs %> inactive subscription(s). <a href="/subscriptions" class="text-purple-400 hover:underline">View all →</a></p>
+  <% } %>
+</div>
+
+<% } else { %>
+<!-- ── Full Dashboard ───────────────────────────────────────────────────────── -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  <!-- Page header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Welcome back, <span class="text-slate-300"><%= currentUser.username %></span></p>
+    </div>
+    <a href="/subscriptions/new" class="btn-gradient text-sm py-2 px-4 self-start sm:self-auto">
+      <i data-lucide="plus" class="w-4 h-4"></i> Add Subscription
+    </a>
+  </div>
+
+  <!-- ── 1–4: Summary Cards ─────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+
+    <!-- Monthly Spending -->
+    <div class="db-stat-card db-stat-purple">
+      <div class="db-stat-icon-wrap" style="background:rgba(139,92,246,0.15);">
+        <i data-lucide="wallet" class="w-5 h-5" style="color:#a78bfa;"></i>
+      </div>
+      <p class="db-stat-label">Monthly Spending</p>
+      <p class="db-stat-value">€<%= stats.monthlyTotal.toFixed(2) %></p>
+      <p class="db-stat-sub"><%= stats.activeCount %> active subscriptions</p>
+    </div>
+
+    <!-- Yearly Projection -->
+    <div class="db-stat-card db-stat-blue">
+      <div class="db-stat-icon-wrap" style="background:rgba(59,130,246,0.15);">
+        <i data-lucide="calendar" class="w-5 h-5" style="color:#60a5fa;"></i>
+      </div>
+      <p class="db-stat-label">Yearly Projection</p>
+      <p class="db-stat-value">€<%= stats.yearlyTotal.toFixed(2) %></p>
+      <p class="db-stat-sub">based on current plan</p>
+    </div>
+
+    <!-- Active Subscriptions -->
+    <div class="db-stat-card db-stat-green">
+      <div class="db-stat-icon-wrap" style="background:rgba(16,185,129,0.15);">
+        <i data-lucide="credit-card" class="w-5 h-5" style="color:#34d399;"></i>
+      </div>
+      <p class="db-stat-label">Active Plans</p>
+      <p class="db-stat-value"><%= stats.activeCount %></p>
+      <p class="db-stat-sub">running subscriptions</p>
+    </div>
+
+    <!-- Potential Savings -->
+    <div class="db-stat-card db-stat-orange">
+      <div class="db-stat-icon-wrap" style="background:rgba(249,115,22,0.15);">
+        <i data-lucide="piggy-bank" class="w-5 h-5" style="color:#fb923c;"></i>
+      </div>
+      <p class="db-stat-label">Potential Savings</p>
+      <p class="db-stat-value">€<%= stats.potentialSavings.toFixed(2) %></p>
+      <p class="db-stat-sub">by cancelling unused</p>
+    </div>
+  </div>
+
+  <!-- ── 5 + 6: Charts Row ───────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- 5: Doughnut — Spending by Category -->
+    <div class="db-card">
+      <div class="db-card-header">
+        <h2 class="db-card-title">
+          <i data-lucide="pie-chart" class="w-4 h-4" style="color:#8B5CF6;"></i>
+          Spending by Category
+        </h2>
+        <span class="text-xs text-slate-500">monthly</span>
+      </div>
+      <div class="p-6 flex flex-col items-center">
+        <div class="relative" style="width:220px;height:220px;">
+          <canvas id="doughnutChart"></canvas>
+          <div class="db-donut-center">
+            <p class="text-xs text-slate-500 mb-0.5">Total</p>
+            <p class="text-lg font-bold text-white">€<%= stats.monthlyTotal.toFixed(2) %></p>
+          </div>
+        </div>
+        <!-- Legend -->
+        <div class="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 w-full max-w-xs">
+          <% categoryChartData.labels.forEach((label, i) => { %>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style="background:<%= categoryChartData.colors[i] %>;"></span>
+              <span class="text-slate-400 truncate"><%= label %></span>
+              <span class="text-slate-500 ml-auto">€<%= categoryChartData.amounts[i].toFixed(2) %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6: Horizontal Bar — Cost per Subscription -->
+    <div class="db-card">
+      <div class="db-card-header">
+        <h2 class="db-card-title">
+          <i data-lucide="bar-chart-horizontal" class="w-4 h-4" style="color:#3B82F6;"></i>
+          Cost per Subscription
+        </h2>
+        <span class="text-xs text-slate-500">monthly equiv.</span>
+      </div>
+      <div class="p-6">
+        <div style="position:relative;height:<%= Math.max(180, barChartData.labels.length * 36) %>px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7: Line Chart — Spending Over Time (full width) ────────────────────── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <h2 class="db-card-title">
+        <i data-lucide="trending-up" class="w-4 h-4" style="color:#10B981;"></i>
+        Spending Over Time
+      </h2>
+      <span class="text-xs text-slate-500">last 6 months</span>
+    </div>
+    <div class="p-6">
+      <div style="position:relative;height:200px;">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8 + 9: Upcoming Payments + Breakdown ───────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- 8: Upcoming Payments -->
+    <div class="db-card">
+      <div class="db-card-header">
+        <h2 class="db-card-title">
+          <i data-lucide="clock" class="w-4 h-4" style="color:#F59E0B;"></i>
+          Upcoming Payments
+        </h2>
+        <span class="text-xs text-slate-500">next 8 renewals</span>
+      </div>
+      <div class="divide-y divide-white/5">
+        <% upcomingPayments.forEach(p => { %>
+          <div class="flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+            <div class="db-cat-icon flex-shrink-0 <%= p.urgent ? 'db-cat-urgent' : '' %>">
+              <i data-lucide="<%= p.icon %>" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-slate-200 truncate"><%= p.name %></p>
+              <p class="text-xs <%= p.urgent ? 'text-red-400 font-medium' : 'text-slate-500' %>">
+                <%= p.urgent ? '⚠ ' : '' %><%= p.nextDate %>
+                <% if (p.daysUntil === 0) { %>(today)
+                <% } else if (p.daysUntil === 1) { %>(tomorrow)
+                <% } else if (p.daysUntil <= 3) { %>(in <%= p.daysUntil %> days)
+                <% } %>
+              </p>
+            </div>
+            <p class="text-sm font-semibold text-slate-300 flex-shrink-0"><%= p.cost %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- 9: Subscription Breakdown -->
+    <div class="db-card">
+      <div class="db-card-header">
+        <h2 class="db-card-title">
+          <i data-lucide="list" class="w-4 h-4" style="color:#EC4899;"></i>
+          Subscription Breakdown
+        </h2>
+        <span class="text-xs text-slate-500">by monthly cost</span>
+      </div>
+      <div class="p-5 space-y-3">
+        <% breakdown.forEach(item => { %>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-slate-300 truncate max-w-[55%]"><%= item.name %></span>
+              <div class="flex items-center gap-3 flex-shrink-0">
+                <span class="text-xs text-slate-500"><%= item.pct %>%</span>
+                <span class="text-sm font-semibold text-slate-300 w-14 text-right">€<%= item.monthly.toFixed(2) %></span>
+              </div>
+            </div>
+            <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div class="h-full rounded-full db-progress-bar" style="width:<%= item.pct %>%;background:<%= item.color %>;"></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 10: Quick Actions ───────────────────────────────────────────────────── -->
+  <div class="db-card p-6">
+    <h2 class="db-card-title mb-4">
+      <i data-lucide="zap" class="w-4 h-4" style="color:#F59E0B;"></i>
+      Quick Actions
+    </h2>
+    <div class="flex flex-wrap gap-3">
+      <a href="/subscriptions/new" class="btn-gradient text-sm py-2 px-5">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Subscription
+      </a>
+      <a href="/subscriptions" class="btn-ghost text-sm py-2 px-5">
+        <i data-lucide="list" class="w-4 h-4"></i> View All
+      </a>
+      <div class="relative group">
+        <button class="btn-ghost text-sm py-2 px-5 opacity-50 cursor-not-allowed" disabled>
+          <i data-lucide="brain" class="w-4 h-4"></i> AI Recommendations
+        </button>
+        <div class="db-tooltip">Coming soon</div>
+      </div>
+      <div class="relative group">
+        <button class="btn-ghost text-sm py-2 px-5 opacity-50 cursor-not-allowed" disabled>
+          <i data-lucide="download" class="w-4 h-4"></i> Export Report
+        </button>
+        <div class="db-tooltip">Coming soon</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /dashboard -->
+<% } %>
+
+<!-- ── Chart.js Init ───────────────────────────────────────────────────────── -->
+<% if (hasSubscriptions) { %>
+<script>
+(function () {
+  'use strict';
+
+  // Data injected from server
+  const catData  = <%- JSON.stringify(categoryChartData) %>;
+  const barData  = <%- JSON.stringify(barChartData) %>;
+  const lineData = <%- JSON.stringify(lineChartData) %>;
+
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size   = 12;
+
+  // ── 1. Doughnut ─────────────────────────────────────────────────────────────
+  new Chart(document.getElementById('doughnutChart'), {
+    type: 'doughnut',
+    data: {
+      labels:   catData.labels,
+      datasets: [{
+        data:            catData.amounts,
+        backgroundColor: catData.colors.map(c => c + 'cc'),
+        borderColor:     catData.colors,
+        borderWidth:     2,
+        hoverOffset:     6,
+      }]
+    },
+    options: {
+      cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = ((ctx.parsed / catData.total) * 100).toFixed(1);
+              return `  €${ctx.parsed.toFixed(2)} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // ── 2. Horizontal Bar ───────────────────────────────────────────────────────
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels:   barData.labels,
+      datasets: [{
+        data:            barData.amounts,
+        backgroundColor: barData.colors.map(c => c + 'bb'),
+        borderColor:     barData.colors,
+        borderWidth:     1,
+        borderRadius:    4,
+        barThickness:    18,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `  €${ctx.parsed.x.toFixed(2)}/mo`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => `€${v}` }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  // ── 3. Line Chart ───────────────────────────────────────────────────────────
+  const lineCtx = document.getElementById('lineChart');
+  const gradient = lineCtx.getContext('2d').createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0,   'rgba(139,92,246,0.35)');
+  gradient.addColorStop(1,   'rgba(139,92,246,0.00)');
+
+  new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels:   lineData.labels,
+      datasets: [{
+        data:            lineData.amounts,
+        borderColor:     '#8B5CF6',
+        backgroundColor: gradient,
+        borderWidth:     2.5,
+        pointRadius:     4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#8B5CF6',
+        pointBorderColor:    '#0A0A0F',
+        pointBorderWidth:    2,
+        fill:     true,
+        tension:  0.4,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `  €${ctx.parsed.y.toFixed(2)}/mo`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => `€${v}` },
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+})();
+</script>
+<% } %>
