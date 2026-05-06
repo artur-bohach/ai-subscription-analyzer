@@ -1,14 +1,42 @@
 'use strict';
 
-const express  = require('express');
-const router   = express.Router();
-const bcrypt   = require('bcryptjs');
+const express = require('express');
+const router  = express.Router();
+const bcrypt  = require('bcryptjs');
 const { getPrismaClient } = require('../utils/helpers');
 const { isGuest }          = require('../middleware/auth');
 
 const prisma      = getPrismaClient();
 const SALT_ROUNDS = 12;
 const EMAIL_RE    = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+const AUTH_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const AUTH_LIMIT_MAX       = 10;
+const authAttempts         = new Map();
+
+function authRateKey(req) {
+  return req.ip || req.socket.remoteAddress || 'unknown';
+}
+
+function authLimiter(req, res, next) {
+  const now = Date.now();
+  const key = authRateKey(req);
+  const current = authAttempts.get(key);
+  const entry = current && current.resetAt > now
+    ? current
+    : { count: 0, resetAt: now + AUTH_LIMIT_WINDOW_MS };
+
+  entry.count += 1;
+  authAttempts.set(key, entry);
+
+  if (entry.count > AUTH_LIMIT_MAX) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+    res.set('Retry-After', String(retryAfter));
+    return res.status(429).send('Too many attempts from this IP. Please try again in 15 minutes.');
+  }
+
+  next();
+}
 
 // ── GET /register ──────────────────────────────────────────────────────────────
 router.get('/register', isGuest, (_req, res) => {
@@ -21,7 +49,7 @@ router.get('/register', isGuest, (_req, res) => {
 });
 
 // ── POST /register ─────────────────────────────────────────────────────────────
-router.post('/register', isGuest, async (req, res, next) => {
+router.post('/register', authLimiter, isGuest, async (req, res, next) => {
   const { username, email, password, confirmPassword } = req.body;
   const formData    = { username: (username || '').trim(), email: (email || '').trim() };
   const fieldErrors = {};
@@ -90,6 +118,7 @@ router.post('/register', isGuest, async (req, res, next) => {
     });
 
     req.session.userId = user.id;
+    authAttempts.delete(authRateKey(req));
     req.flash('success', `Welcome to SubTracker, ${user.username}!`);
     res.redirect('/dashboard');
   } catch (err) {
@@ -107,7 +136,7 @@ router.get('/login', isGuest, (_req, res) => {
 });
 
 // ── POST /login ────────────────────────────────────────────────────────────────
-router.post('/login', isGuest, async (req, res, next) => {
+router.post('/login', authLimiter, isGuest, async (req, res, next) => {
   const { identifier, password } = req.body;
   const formData = { identifier: (identifier || '').trim() };
 
@@ -141,9 +170,16 @@ router.post('/login', isGuest, async (req, res, next) => {
 
     // Set session
     req.session.userId = user.id;
+    authAttempts.delete(authRateKey(req));
 
-    // Redirect to saved returnTo URL or default
-    const returnTo = req.session.returnTo || '/dashboard';
+    // Extend cookie lifetime to 30 days if "remember me" is checked
+    if (req.body.rememberMe) {
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+    }
+
+    // Redirect to saved returnTo URL — validate it's a local path to prevent open redirect
+    const raw = req.session.returnTo || '';
+    const returnTo = (raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/dashboard';
     delete req.session.returnTo;
 
     req.flash('success', `Welcome back, ${user.username}!`);

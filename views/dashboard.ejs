@@ -221,9 +221,9 @@
 (function () {
   'use strict';
 
-  const catData  = <%- JSON.stringify(categoryChartData) %>;
-  const barData  = <%- JSON.stringify(barChartData) %>;
-  const lineData = <%- JSON.stringify(lineChartData) %>;
+  const catData  = <%- safeJson(categoryChartData) %>;
+  const barData  = <%- safeJson(barChartData) %>;
+  const lineData = <%- safeJson(lineChartData) %>;
 
   const neon    = '#00FF87';
   const muted   = '#555555';

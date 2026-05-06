@@ -42,7 +42,11 @@ async function loadUser(req, res, next) {
 function isAuthenticated(req, res, next) {
   if (res.locals.isAuthenticated) return next();
 
-  req.session.returnTo = req.originalUrl;
+  // Only save local paths — reject external URLs to prevent open redirect
+  const url = req.originalUrl;
+  if (url && url.startsWith('/') && !url.startsWith('//')) {
+    req.session.returnTo = url;
+  }
   req.flash('error', 'Please sign in to continue.');
   return res.redirect('/login');
 }

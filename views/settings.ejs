@@ -1,0 +1,397 @@
+<%
+  const fe      = fieldErrors || {};
+  const section = activeSection || 'general';
+%>
+
+<style>
+  /* ── Settings layout ─────────────────────────────────────────────────────── */
+  .st-wrap      { max-width: 1024px; margin: 0 auto; padding: 32px 16px 64px; }
+  .st-grid      { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 900px) {
+    .st-grid    { grid-template-columns: 212px 1fr; align-items: start; }
+  }
+
+  /* Sidebar */
+  .st-sidebar   { position: sticky; top: 80px; }
+  .st-sidebar-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted2); padding: 0 12px;
+    margin-bottom: 6px;
+  }
+  .st-nav       { display: flex; flex-direction: row; gap: 2px; overflow-x: auto;
+                  padding-bottom: 2px; }
+  @media (min-width: 900px) {
+    .st-nav     { flex-direction: column; overflow-x: unset; padding-bottom: 0; }
+  }
+  .st-nav-item  {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-size: 13.5px; font-weight: 500; color: var(--muted);
+    background: transparent; border: none; text-align: left; width: 100%;
+    white-space: nowrap; flex-shrink: 0;
+    transition: background var(--transition), color var(--transition);
+  }
+  .st-nav-item:hover    { background: rgba(255,255,255,0.05); color: var(--text); }
+  .st-nav-item.active   { background: rgba(255,255,255,0.08); color: var(--text); }
+  .st-nav-item.active svg { color: var(--neon); }
+  .st-nav-item.danger:hover { color: var(--danger); }
+  .st-nav-item.danger.active { background: rgba(255,68,68,0.08); color: var(--danger); }
+
+  /* Content */
+  .st-section   { display: none; animation: fadeUp 0.18s ease; }
+  .st-section.active { display: block; }
+
+  /* Card */
+  .st-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px;
+    margin-bottom: 16px;
+  }
+  .st-card-title {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .st-card-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .st-divider   { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* Fields */
+  .st-field     { margin-bottom: 18px; }
+  .st-label     {
+    display: block; font-size: 12.5px; font-weight: 500;
+    color: var(--muted); margin-bottom: 7px;
+  }
+  .st-input {
+    width: 100%; background: #1a1a1a; border: 1px solid #333;
+    border-radius: 10px; padding: 11px 14px; color: #fff;
+    font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .st-input:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(0,255,135,0.1); }
+  .st-input.is-error { border-color: var(--danger); }
+  .st-input:disabled { opacity: 0.45; cursor: not-allowed; }
+  .st-input-error { font-size: 12px; color: var(--danger); margin-top: 5px; }
+
+  /* Readonly field */
+  .st-readonly {
+    background: #111; border: 1px solid #222; border-radius: 10px;
+    padding: 11px 14px; color: var(--muted); font-size: 14px;
+  }
+
+  /* Save button */
+  .st-btn-save {
+    background: #fff; color: #000; border: none;
+    border-radius: 10px; padding: 9px 22px; font-size: 13.5px;
+    font-weight: 600; cursor: pointer; display: inline-flex;
+    align-items: center; gap: 7px; font-family: inherit;
+    transition: opacity var(--transition), transform var(--transition);
+  }
+  .st-btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
+  .st-btn-save:active { transform: translateY(0); }
+
+  /* Export button */
+  .st-btn-export {
+    background: rgba(255,255,255,0.06); color: var(--text);
+    border: 1px solid var(--border2); border-radius: 10px;
+    padding: 9px 18px; font-size: 13px; font-weight: 500;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    font-family: inherit; transition: background var(--transition);
+  }
+  .st-btn-export:hover { background: rgba(255,255,255,0.1); }
+
+  /* Danger zone card */
+  .st-danger-card {
+    background: rgba(255,17,17,0.04); border: 1px solid rgba(180,0,0,0.22);
+    border-radius: 14px; padding: 24px; margin-bottom: 16px;
+  }
+  .st-danger-title { font-size: 14px; font-weight: 600; color: var(--danger); margin-bottom: 4px; }
+  .st-danger-desc  { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .st-btn-delete {
+    background: rgba(255,68,68,0.12); color: var(--danger);
+    border: 1px solid rgba(255,68,68,0.3); border-radius: 10px;
+    padding: 9px 18px; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    font-family: inherit; transition: background var(--transition);
+  }
+  .st-btn-delete:hover   { background: rgba(255,68,68,0.22); }
+  .st-btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Coming soon badge */
+  .st-soon {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,184,0,0.1); border: 1px solid rgba(255,184,0,0.2);
+    color: var(--warn); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.04em; border-radius: 6px; padding: 3px 8px;
+    vertical-align: middle; margin-left: 8px;
+  }
+  .st-stub {
+    background: rgba(255,255,255,0.02); border: 1px dashed var(--border2);
+    border-radius: 12px; padding: 40px 24px; text-align: center;
+  }
+  .st-stub p { font-size: 13px; color: var(--muted2); margin-top: 8px; }
+</style>
+
+<div class="st-wrap">
+
+  <!-- Page header -->
+  <div style="margin-bottom:28px">
+    <h1 style="font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px">
+      <i data-lucide="settings-2" class="w-5 h-5" style="color:var(--neon)"></i>
+      Settings
+    </h1>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px">Manage your account preferences and data.</p>
+  </div>
+
+  <div class="st-grid">
+
+    <!-- ── Left Sidebar ──────────────────────────────────────────────────────── -->
+    <aside class="st-sidebar">
+      <p class="st-sidebar-title hidden-mobile" style="display:none">
+        <span style="display:block;margin-bottom:4px">Sections</span>
+      </p>
+      <nav class="st-nav" role="tablist" aria-label="Settings sections">
+
+        <button class="st-nav-item" data-section="general" role="tab"
+                aria-selected="<%= section === 'general' ? 'true' : 'false' %>">
+          <i data-lucide="user-round" class="w-4 h-4 flex-shrink-0"></i>
+          General
+        </button>
+
+        <button class="st-nav-item" data-section="appearance" role="tab"
+                aria-selected="<%= section === 'appearance' ? 'true' : 'false' %>">
+          <i data-lucide="palette" class="w-4 h-4 flex-shrink-0"></i>
+          Appearance
+        </button>
+
+        <button class="st-nav-item" data-section="notifications" role="tab"
+                aria-selected="<%= section === 'notifications' ? 'true' : 'false' %>">
+          <i data-lucide="bell" class="w-4 h-4 flex-shrink-0"></i>
+          Notifications
+        </button>
+
+        <button class="st-nav-item danger" data-section="privacy" role="tab"
+                aria-selected="<%= section === 'privacy' ? 'true' : 'false' %>">
+          <i data-lucide="shield" class="w-4 h-4 flex-shrink-0"></i>
+          Data &amp; Privacy
+        </button>
+
+      </nav>
+    </aside>
+
+    <!-- ── Right Content ─────────────────────────────────────────────────────── -->
+    <div>
+
+      <!-- ══ GENERAL ══════════════════════════════════════════════════════════ -->
+      <div id="section-general" class="st-section" role="tabpanel">
+
+        <div class="st-card">
+          <p class="st-card-title">Account Information</p>
+          <p class="st-card-desc">Update your display name and email address.</p>
+
+          <form id="settings-general-form" action="/settings/general" method="POST" novalidate>
+
+            <!-- Display Name -->
+            <div class="st-field">
+              <label for="st-username" class="st-label">Display Name</label>
+              <input
+                id="st-username" name="username" type="text"
+                class="st-input<% if (fe.username) { %> is-error<% } %>"
+                value="<%= profileUser.username %>"
+                maxlength="30"
+                autocomplete="username"
+                autocapitalize="none"
+                placeholder="Your username"
+              />
+              <% if (fe.username) { %>
+                <p class="st-input-error">⚠ <%= fe.username %></p>
+              <% } %>
+              <p style="font-size:12px;color:var(--muted2);margin-top:5px">
+                3–30 characters. Letters, numbers, _ and - only.
+              </p>
+            </div>
+
+            <!-- Email -->
+            <div class="st-field">
+              <label for="st-email" class="st-label">Email Address</label>
+              <input
+                id="st-email" name="email" type="email"
+                class="st-input<% if (fe.email) { %> is-error<% } %>"
+                value="<%= profileUser.email %>"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
+              <% if (fe.email) { %>
+                <p class="st-input-error">⚠ <%= fe.email %></p>
+              <% } %>
+            </div>
+
+            <hr class="st-divider" />
+
+            <!-- Account Created (read-only) -->
+            <div class="st-field">
+              <label class="st-label">Member Since</label>
+              <div class="st-readonly">
+                <%= formatDateDisplay(profileUser.createdAt) %>
+              </div>
+            </div>
+
+            <!-- Role (read-only) -->
+            <div class="st-field">
+              <label class="st-label">Account Role</label>
+              <div class="st-readonly" style="display:flex;align-items:center;gap:8px">
+                <% if (profileUser.role === 'admin') { %>
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5" style="color:var(--neon)"></i>
+                  Administrator
+                <% } else { %>
+                  <i data-lucide="user" class="w-3.5 h-3.5" style="color:var(--muted)"></i>
+                  User
+                <% } %>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;padding-top:4px">
+              <button type="submit" class="st-btn-save">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                Save Changes
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div><!-- /general -->
+
+
+      <!-- ══ APPEARANCE ════════════════════════════════════════════════════════ -->
+      <div id="section-appearance" class="st-section" role="tabpanel">
+
+        <div class="st-card">
+          <p class="st-card-title">
+            Appearance
+            <span class="st-soon"><i data-lucide="clock" class="w-2.5 h-2.5"></i> Coming soon</span>
+          </p>
+          <p class="st-card-desc">Customize how SubTracker looks for you.</p>
+          <div class="st-stub">
+            <i data-lucide="palette" class="w-8 h-8" style="color:var(--muted2);margin:0 auto;display:block"></i>
+            <p>Theme switching, accent colors, and layout options are on the way.</p>
+          </div>
+        </div>
+
+      </div><!-- /appearance -->
+
+
+      <!-- ══ NOTIFICATIONS ══════════════════════════════════════════════════════ -->
+      <div id="section-notifications" class="st-section" role="tabpanel">
+
+        <div class="st-card">
+          <p class="st-card-title">
+            Notifications
+            <span class="st-soon"><i data-lucide="clock" class="w-2.5 h-2.5"></i> Coming soon</span>
+          </p>
+          <p class="st-card-desc">Choose what you want to be notified about.</p>
+          <div class="st-stub">
+            <i data-lucide="bell-off" class="w-8 h-8" style="color:var(--muted2);margin:0 auto;display:block"></i>
+            <p>Renewal reminders and spending alerts are coming in a future update.</p>
+          </div>
+        </div>
+
+      </div><!-- /notifications -->
+
+
+      <!-- ══ DATA & PRIVACY ════════════════════════════════════════════════════ -->
+      <div id="section-privacy" class="st-section" role="tabpanel">
+
+        <!-- Export -->
+        <div class="st-card">
+          <p class="st-card-title">Export My Data</p>
+          <p class="st-card-desc">
+            Download a JSON file with your account info and all subscription records.
+          </p>
+          <form action="/settings/export" method="POST">
+            <button type="submit" class="st-btn-export">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Download JSON export
+            </button>
+          </form>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="st-danger-card">
+          <p class="st-danger-title">
+            <i data-lucide="triangle-alert" class="w-3.5 h-3.5 inline-block mr-1"></i>
+            Delete Account
+          </p>
+          <p class="st-danger-desc">
+            Permanently delete your account and all associated subscriptions.
+            This action cannot be undone.
+          </p>
+
+          <form id="delete-account-form" action="/settings/delete-account" method="POST" novalidate>
+            <div class="st-field">
+              <label for="st-confirm-delete" class="st-label" style="color:var(--danger)">
+                Type <strong style="color:#fff">DELETE</strong> to confirm
+              </label>
+              <input
+                id="st-confirm-delete"
+                name="confirmText"
+                type="text"
+                class="st-input"
+                placeholder="DELETE"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                style="max-width:280px;border-color:rgba(255,68,68,0.3)"
+              />
+            </div>
+
+            <button type="submit" id="st-delete-btn" class="st-btn-delete" disabled>
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              Delete My Account
+            </button>
+          </form>
+        </div>
+
+      </div><!-- /privacy -->
+
+    </div><!-- /content -->
+  </div><!-- /grid -->
+</div>
+
+<!-- ── Settings JS ─────────────────────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  const navItems = document.querySelectorAll('[data-section]');
+  const panels   = document.querySelectorAll('.st-section');
+
+  function activate(id) {
+    navItems.forEach(btn => {
+      const match = btn.dataset.section === id;
+      btn.classList.toggle('active', match);
+      btn.setAttribute('aria-selected', match ? 'true' : 'false');
+    });
+    panels.forEach(p => p.classList.toggle('active', p.id === 'section-' + id));
+    // Update URL without reload so back button and flash redirects work
+    const url = new URL(window.location);
+    url.searchParams.set('section', id);
+    history.replaceState(null, '', url);
+  }
+
+  navItems.forEach(btn => {
+    btn.addEventListener('click', () => activate(btn.dataset.section));
+  });
+
+  // Activate the server-selected section on load
+  activate('<%= section %>');
+
+  // ── Delete account: enable button only when input === 'DELETE' ──────────────
+  const confirmInput = document.getElementById('st-confirm-delete');
+  const deleteBtn    = document.getElementById('st-delete-btn');
+
+  if (confirmInput && deleteBtn) {
+    confirmInput.addEventListener('input', () => {
+      deleteBtn.disabled = confirmInput.value.trim() !== 'DELETE';
+    });
+  }
+})();
+</script>

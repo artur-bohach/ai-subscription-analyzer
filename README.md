@@ -14,6 +14,7 @@ The project now covers FR1-FR5 core work:
 - Admin panel with user management, subscription overview, aggregate stats, and charts
 - User dashboard with Chart.js analytics, summary cards, upcoming payments, and spending breakdowns
 - Profile page with account details, profile update, password change, preferences UI, and account deletion
+- Settings page with account settings, data export, and account deletion controls
 - Custom 404/500 pages, flash messages, breadcrumbs, responsive navigation, and polished dark UI
 
 FR6, XML export and XSLT report generation, is the main remaining university requirement.
@@ -28,6 +29,7 @@ Since the older README version, the following work has been added:
 - Built the admin dashboard and user management screens.
 - Built the authenticated analytics dashboard with Chart.js.
 - Added the profile/settings page with password and account management flows.
+- Added a dedicated `/settings` page with JSON data export and privacy controls.
 - Expanded seed data to include multiple realistic users and subscriptions.
 - Refined the visual system toward the current SubTracker dark theme.
 - Synced Prisma migrations with the current `User` schema and cascade delete behavior.
@@ -154,6 +156,10 @@ The seed script also creates several additional demo users with realistic subscr
 | POST | `/profile` | Update profile |
 | POST | `/profile/password` | Change password |
 | DELETE | `/profile` | Delete account |
+| GET | `/settings` | Account settings |
+| POST | `/settings/general` | Update display name and email |
+| POST | `/settings/export` | Export user data as JSON |
+| POST | `/settings/delete-account` | Delete account from settings |
 | GET | `/admin` | Admin dashboard |
 | GET | `/admin/users` | User management |
 | GET | `/admin/users/:id` | User details |
