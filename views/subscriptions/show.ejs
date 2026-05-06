@@ -1,39 +1,40 @@
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="page-wrap">
 
   <!-- ── Card ──────────────────────────────────────────────────────────── -->
-  <div class="glass rounded-2xl overflow-hidden">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;">
 
     <!-- Card Header -->
-    <div class="bg-gradient-to-r from-purple-600/20 via-blue-600/10 to-transparent p-8 border-b border-white/5">
+    <div style="padding:32px;border-bottom:1px solid var(--border);">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/40 to-blue-500/40 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
-          <i data-lucide="<%= getCategoryIcon(subscription.category) %>" class="w-8 h-8 text-purple-300"></i>
+        <div class="service-icon flex-shrink-0" style="width:56px;height:56px;border-radius:12px;font-size:24px;">
+          <i data-lucide="<%= getCategoryIcon(subscription.category) %>"></i>
         </div>
         <div class="flex-1">
           <div class="flex flex-wrap items-center gap-3 mb-1">
             <h1 class="text-2xl font-extrabold text-white"><%= subscription.name %></h1>
-            <span class="badge badge-<%= subscription.status %>">
-              <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+            <span class="status-badge status-<%= subscription.status %>">
+              <span class="status-dot"></span>
               <%= subscription.status %>
             </span>
           </div>
-          <p class="text-slate-400 text-sm">
+          <p style="color:var(--muted);font-size:13px;">
             <i data-lucide="tag" class="w-3.5 h-3.5 inline-block mr-1"></i>
-            <%= subscription.category %>
+            <span class="cat-badge"><%= subscription.category %></span>
           </p>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex gap-3 flex-wrap">
-          <a href="/subscriptions/<%= subscription.id %>/edit" class="btn-ghost text-sm py-2 px-4">
+          <a href="/subscriptions/<%= subscription.id %>/edit" class="btn-ghost" style="font-size:13px;padding:7px 16px;">
             <i data-lucide="pencil" class="w-4 h-4"></i>
             Edit
           </a>
           <button
             type="button"
             data-delete-form="delete-form-<%= subscription.id %>"
-            class="btn-danger py-2 px-4"
+            class="btn-danger"
+            style="padding:7px 16px;"
           >
             <i data-lucide="trash-2" class="w-4 h-4"></i>
             Delete
@@ -49,26 +50,26 @@
     </div>
 
     <!-- Card Body -->
-    <div class="p-8">
+    <div style="padding:32px;">
 
       <!-- Cost Summary -->
-      <div class="grid sm:grid-cols-3 gap-4 mb-8">
-        <div class="rounded-xl bg-white/4 border border-white/6 p-5 text-center">
-          <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Billed</p>
-          <p class="text-2xl font-extrabold text-white">
+      <div class="grid sm:grid-cols-3 gap-4" style="margin-bottom:32px;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center;">
+          <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px;">Billed</p>
+          <p style="font-size:22px;font-weight:800;color:var(--text);">
             <%= formatCurrency(Number(subscription.cost), subscription.currency) %>
           </p>
-          <p class="text-xs text-slate-500 mt-1 capitalize"><%= subscription.billingCycle %></p>
+          <p style="font-size:11px;color:var(--muted2);margin-top:4px;text-transform:capitalize;"><%= subscription.billingCycle %></p>
         </div>
-        <div class="rounded-xl bg-purple-500/8 border border-purple-500/15 p-5 text-center">
-          <p class="text-xs text-purple-400 uppercase tracking-wider font-semibold mb-2">Monthly Cost</p>
-          <p class="text-2xl font-extrabold gradient-text">€<%= monthlyEquivalent %></p>
-          <p class="text-xs text-slate-500 mt-1">normalized</p>
+        <div style="background:rgba(0,255,135,0.05);border:1px solid rgba(0,255,135,0.15);border-radius:10px;padding:20px;text-align:center;">
+          <p style="font-size:11px;color:var(--neon);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px;">Monthly Cost</p>
+          <p style="font-size:22px;font-weight:800;color:var(--neon);">€<%= monthlyEquivalent %></p>
+          <p style="font-size:11px;color:var(--muted2);margin-top:4px;">normalized</p>
         </div>
-        <div class="rounded-xl bg-blue-500/8 border border-blue-500/15 p-5 text-center">
-          <p class="text-xs text-blue-400 uppercase tracking-wider font-semibold mb-2">Yearly Cost</p>
-          <p class="text-2xl font-extrabold text-blue-300">€<%= yearlyEquivalent %></p>
-          <p class="text-xs text-slate-500 mt-1">projected</p>
+        <div style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:20px;text-align:center;">
+          <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px;">Yearly Cost</p>
+          <p style="font-size:22px;font-weight:800;color:var(--text);">€<%= yearlyEquivalent %></p>
+          <p style="font-size:11px;color:var(--muted2);margin-top:4px;">projected</p>
         </div>
       </div>
 
@@ -78,27 +79,27 @@
         <div class="space-y-5">
           <!-- Currency -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Currency</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Currency</p>
             <p class="text-white font-medium flex items-center gap-2">
-              <i data-lucide="banknote" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="banknote" class="w-4 h-4" style="color:var(--muted2);"></i>
               <%= subscription.currency %>
             </p>
           </div>
 
           <!-- Billing Cycle -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Billing Cycle</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Billing Cycle</p>
             <p class="text-white font-medium capitalize flex items-center gap-2">
-              <i data-lucide="repeat" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="repeat" class="w-4 h-4" style="color:var(--muted2);"></i>
               <%= subscription.billingCycle %>
             </p>
           </div>
 
           <!-- Start Date -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Start Date</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Start Date</p>
             <p class="text-white font-medium flex items-center gap-2">
-              <i data-lucide="calendar-plus" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="calendar-plus" class="w-4 h-4" style="color:var(--muted2);"></i>
               <%= formatDateDisplay(subscription.startDate) %>
             </p>
           </div>
@@ -107,9 +108,9 @@
         <div class="space-y-5">
           <!-- Next Payment -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Next Payment</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Next Payment</p>
             <p class="text-white font-medium flex items-center gap-2">
-              <i data-lucide="calendar-clock" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="calendar-clock" class="w-4 h-4" style="color:var(--muted2);"></i>
               <% if (subscription.nextPayment) { %>
                 <%= formatDateDisplay(subscription.nextPayment) %>
               <% } else { %>
@@ -120,18 +121,18 @@
 
           <!-- Added -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Added</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Added</p>
             <p class="text-white font-medium flex items-center gap-2">
-              <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="clock" class="w-4 h-4" style="color:var(--muted2);"></i>
               <%= formatDateDisplay(subscription.createdAt) %>
             </p>
           </div>
 
           <!-- Updated -->
           <div>
-            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Last Updated</p>
+            <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px;">Last Updated</p>
             <p class="text-white font-medium flex items-center gap-2">
-              <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-500"></i>
+              <i data-lucide="refresh-cw" class="w-4 h-4" style="color:var(--muted2);"></i>
               <%= formatDateDisplay(subscription.updatedAt) %>
             </p>
           </div>
@@ -140,39 +141,39 @@
 
       <!-- Notes -->
       <% if (subscription.notes) { %>
-        <div class="mt-6 pt-6 border-t border-white/5">
-          <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Notes</p>
-          <div class="rounded-xl bg-white/4 border border-white/6 p-4">
-            <p class="text-slate-300 text-sm leading-relaxed"><%= subscription.notes %></p>
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+          <p style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px;">Notes</p>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;">
+            <p style="color:var(--muted);font-size:14px;line-height:1.6;"><%= subscription.notes %></p>
           </div>
         </div>
       <% } %>
     </div>
   </div>
-</div>
 
-<!-- ── Back to List ───────────────────────────────────────────────────────── -->
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-2">
-  <a href="/subscriptions" class="btn-ghost text-sm py-2 px-4">
-    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-    Back to List
-  </a>
+  <!-- ── Back to List ─────────────────────────────────────────────────────── -->
+  <div style="margin-top:16px;">
+    <a href="/subscriptions" class="btn-ghost" style="font-size:13px;padding:7px 16px;">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Back to List
+    </a>
+  </div>
 </div>
 
 <!-- ── Delete Confirmation Modal ─────────────────────────────────────────── -->
 <div id="delete-modal" class="modal-backdrop" style="display:none;">
   <div class="modal-box">
     <div class="text-center">
-      <div class="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-5">
-        <i data-lucide="trash-2" class="w-7 h-7 text-red-400"></i>
+      <div style="width:56px;height:56px;border-radius:12px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <i data-lucide="trash-2" style="width:28px;height:28px;color:var(--danger);"></i>
       </div>
       <h3 class="text-xl font-bold text-white mb-2">Delete "<%= subscription.name %>"?</h3>
-      <p class="text-slate-400 text-sm mb-6">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">
         This action cannot be undone. The subscription and all its data will be permanently removed.
       </p>
       <div class="flex gap-3 justify-center">
-        <button id="cancel-delete" class="btn-ghost px-6 py-2.5 flex-1">Cancel</button>
-        <button id="confirm-delete" class="btn-danger px-6 py-2.5 flex-1 justify-center">
+        <button id="cancel-delete" class="btn-ghost" style="padding:10px 24px;flex:1;">Cancel</button>
+        <button id="confirm-delete" class="btn-danger" style="padding:10px 24px;flex:1;justify-content:center;">
           <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
         </button>
       </div>

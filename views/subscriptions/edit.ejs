@@ -1,7 +1,5 @@
 <%
   const fe = fieldErrors || {};
-  // Use 'name' in formData (not formData.name) so an empty name string still
-  // triggers the formData path and doesn't silently fall back to the DB value.
   const data = (formData && 'name' in formData) ? formData : subscription;
 
   const categories = [
@@ -15,8 +13,6 @@
 
   const errorCount = Object.keys(fe).length;
 
-  // Safe cost display: Prisma Decimals format as X.XX; raw form strings are
-  // preserved as-is so invalid input (e.g. "abc") is shown back, not "NaN".
   const costDisplay = (() => {
     const c = data.cost;
     if (c == null || c === '') return '';
@@ -25,29 +21,30 @@
   })();
 %>
 
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="page-wrap" style="max-width:680px;">
 
   <!-- Page Title -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-      <i data-lucide="pencil" class="w-6 h-6 text-purple-400"></i>
-      Edit Subscription
-    </h1>
-    <p class="text-slate-500 text-sm mt-1">Update the details for <strong class="text-slate-300"><%= subscription.name %></strong>.</p>
+  <div style="margin-bottom:32px;">
+    <div class="page-header-row">
+      <div>
+        <h1 class="page-title">Edit Subscription</h1>
+        <p class="page-sub">Update the details for <strong style="color:var(--text);"><%= subscription.name %></strong>.</p>
+      </div>
+    </div>
   </div>
 
   <!-- Server-side error summary banner -->
   <% if (errorCount > 0) { %>
-    <div class="glass border border-red-500/30 rounded-xl p-4 mb-6 flex gap-3" role="alert">
-      <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"></i>
-      <p class="text-sm font-semibold text-red-400">
+    <div style="background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:16px;margin-bottom:24px;display:flex;gap:12px;" role="alert">
+      <i data-lucide="alert-circle" style="width:20px;height:20px;color:var(--danger);flex-shrink:0;margin-top:2px;"></i>
+      <p style="font-size:14px;font-weight:600;color:var(--danger);">
         Please fix <%= errorCount %> error<%= errorCount !== 1 ? 's' : '' %> below before continuing.
       </p>
     </div>
   <% } %>
 
   <!-- Form Card -->
-  <div class="glass rounded-2xl p-8">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:32px;">
     <form
       id="subscription-form"
       action="/subscriptions/<%= subscription.id %>?_method=PUT"
@@ -57,7 +54,7 @@
 
       <!-- Name -->
       <div class="mb-5">
-        <label for="name" class="form-label">Service Name <span class="text-red-400">*</span></label>
+        <label for="name" class="form-label">Service Name <span style="color:var(--danger);">*</span></label>
         <input
           id="name" name="name" type="text"
           class="form-input <%= fe.name ? 'is-error' : '' %>"
@@ -71,7 +68,7 @@
       <!-- Category + Currency -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="category" class="form-label">Category <span class="text-red-400">*</span></label>
+          <label for="category" class="form-label">Category <span style="color:var(--danger);">*</span></label>
           <select id="category" name="category" class="form-input <%= fe.category ? 'is-error' : '' %>" required>
             <option value="">— Select category —</option>
             <% categories.forEach(cat => { %>
@@ -93,7 +90,7 @@
       <!-- Cost + Billing Cycle -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="cost" class="form-label">Cost <span class="text-red-400">*</span></label>
+          <label for="cost" class="form-label">Cost <span style="color:var(--danger);">*</span></label>
           <input
             id="cost" name="cost" type="number"
             class="form-input <%= fe.cost ? 'is-error' : '' %>"
@@ -104,7 +101,7 @@
           <% if (fe.cost) { %><p class="field-error-msg show">⚠ <%= fe.cost %></p><% } %>
         </div>
         <div>
-          <label for="billingCycle" class="form-label">Billing Cycle <span class="text-red-400">*</span></label>
+          <label for="billingCycle" class="form-label">Billing Cycle <span style="color:var(--danger);">*</span></label>
           <select id="billingCycle" name="billingCycle" class="form-input <%= fe.billingCycle ? 'is-error' : '' %>" required>
             <option value="">— Select cycle —</option>
             <% cycles.forEach(c => { %>
@@ -118,7 +115,7 @@
       <!-- Start Date + Status -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="startDate" class="form-label">Start Date <span class="text-red-400">*</span></label>
+          <label for="startDate" class="form-label">Start Date <span style="color:var(--danger);">*</span></label>
           <input
             id="startDate" name="startDate" type="date"
             class="form-input <%= fe.startDate ? 'is-error' : '' %>"
@@ -140,7 +137,7 @@
 
       <!-- Notes -->
       <div class="mb-8">
-        <label for="notes" class="form-label">Notes <span class="text-slate-600">(optional)</span></label>
+        <label for="notes" class="form-label">Notes <span style="color:var(--muted2);font-weight:400;">(optional)</span></label>
         <textarea
           id="notes" name="notes"
           rows="3"
@@ -152,26 +149,27 @@
 
       <!-- Actions -->
       <div class="flex gap-4">
-        <button type="submit" class="btn-primary flex-1 justify-center py-3">
+        <button type="submit" class="btn-primary flex-1 justify-center" style="padding:12px;">
           <i data-lucide="save" class="w-4 h-4"></i>
           Save Changes
         </button>
-        <a href="/subscriptions/<%= subscription.id %>" class="btn-ghost py-3 px-6">Cancel</a>
+        <a href="/subscriptions/<%= subscription.id %>" class="btn-ghost" style="padding:12px 24px;">Cancel</a>
       </div>
     </form>
   </div>
 
   <!-- Danger Zone -->
-  <div class="glass border border-red-500/15 rounded-2xl p-6 mt-6">
-    <h3 class="text-sm font-semibold text-red-400 mb-1 flex items-center gap-2">
+  <div style="background:var(--card);border:1px solid rgba(255,68,68,0.15);border-radius:var(--radius-card);padding:24px;margin-top:24px;">
+    <h3 style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:4px;display:flex;align-items:center;gap:8px;">
       <i data-lucide="alert-triangle" class="w-4 h-4"></i>
       Danger Zone
     </h3>
-    <p class="text-xs text-slate-500 mb-4">Permanently delete this subscription. This cannot be undone.</p>
+    <p style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Permanently delete this subscription. This cannot be undone.</p>
     <button
       type="button"
       data-delete-form="delete-form-<%= subscription.id %>"
-      class="btn-danger py-2 px-4"
+      class="btn-danger"
+      style="padding:8px 16px;"
     >
       <i data-lucide="trash-2" class="w-4 h-4"></i>
       Delete Subscription
@@ -189,16 +187,16 @@
 <div id="delete-modal" class="modal-backdrop" style="display:none;">
   <div class="modal-box">
     <div class="text-center">
-      <div class="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-5">
-        <i data-lucide="trash-2" class="w-7 h-7 text-red-400"></i>
+      <div style="width:56px;height:56px;border-radius:12px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <i data-lucide="trash-2" style="width:28px;height:28px;color:var(--danger);"></i>
       </div>
       <h3 class="text-xl font-bold text-white mb-2">Delete "<%= subscription.name %>"?</h3>
-      <p class="text-slate-400 text-sm mb-6">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">
         This action cannot be undone. The subscription will be permanently deleted.
       </p>
       <div class="flex gap-3 justify-center">
-        <button id="cancel-delete" class="btn-ghost px-6 py-2.5 flex-1">Cancel</button>
-        <button id="confirm-delete" class="btn-danger px-6 py-2.5 flex-1 justify-center">
+        <button id="cancel-delete" class="btn-ghost" style="padding:10px 24px;flex:1;">Cancel</button>
+        <button id="confirm-delete" class="btn-danger" style="padding:10px 24px;flex:1;justify-content:center;">
           <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
         </button>
       </div>

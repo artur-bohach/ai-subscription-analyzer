@@ -3,16 +3,16 @@
   <div class="text-center max-w-lg mx-auto">
 
     <!-- Error Code -->
-    <div class="text-9xl font-black gradient-text leading-none mb-6 select-none">
+    <div style="font-size:clamp(6rem,15vw,9rem);font-weight:900;line-height:1;color:var(--neon);margin-bottom:24px;user-select:none;">
       <%= statusCode || 500 %>
     </div>
 
     <!-- Decorative icon -->
-    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-white/10 flex items-center justify-center mx-auto mb-6">
+    <div style="width:80px;height:80px;border-radius:16px;background:rgba(0,255,135,0.08);border:1px solid rgba(0,255,135,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
       <% if (statusCode === 404) { %>
-        <i data-lucide="search-x" class="w-10 h-10 text-purple-400"></i>
+        <i data-lucide="search-x" style="width:40px;height:40px;color:var(--neon);"></i>
       <% } else { %>
-        <i data-lucide="alert-triangle" class="w-10 h-10 text-amber-400"></i>
+        <i data-lucide="alert-triangle" style="width:40px;height:40px;color:var(--warn);"></i>
       <% } %>
     </div>
 
@@ -20,16 +20,16 @@
       <%= statusCode === 404 ? 'Page Not Found' : 'Something Went Wrong' %>
     </h1>
 
-    <p class="text-slate-400 mb-8 leading-relaxed">
+    <p style="color:var(--muted);margin-bottom:32px;line-height:1.6;">
       <%= message || "An unexpected error occurred. Please try again later." %>
     </p>
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="/" class="btn-gradient px-8 py-2.5">
+      <a href="/" class="btn-primary" style="padding:10px 32px;">
         <i data-lucide="home" class="w-4 h-4"></i>
         Go Home
       </a>
-      <a href="/subscriptions" class="btn-ghost px-8 py-2.5">
+      <a href="/subscriptions" class="btn-ghost" style="padding:10px 32px;">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
         Dashboard
       </a>

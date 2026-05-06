@@ -1,14 +1,14 @@
 <!-- ── About Header ───────────────────────────────────────────────────────── -->
 <section class="pt-16 pb-12 px-4">
   <div class="max-w-4xl mx-auto text-center">
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-purple-500/20 text-sm text-purple-300 font-medium mb-6">
-      <i data-lucide="info" class="w-4 h-4"></i>
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;background:var(--card);border:1px solid var(--border2);font-size:13px;color:var(--muted);font-weight:500;margin-bottom:24px;">
+      <i data-lucide="info" class="w-4 h-4" style="color:var(--neon);"></i>
       About the Project
     </div>
     <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-5">
-      Built for <span class="gradient-text">financial clarity</span>
+      Built for <span style="color:var(--neon);">financial clarity</span>
     </h1>
-    <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+    <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto;line-height:1.7;">
       SubTracker is an open-source web application that helps you track,
       manage and optimize your recurring digital subscriptions — all in one clean, modern interface.
     </p>
@@ -19,28 +19,28 @@
 <section class="py-16 px-4">
   <div class="max-w-5xl mx-auto">
     <h2 class="text-2xl font-bold text-white text-center mb-10">
-      <span class="gradient-text">Technology</span> Stack
+      <span style="color:var(--neon);">Technology</span> Stack
     </h2>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <%
         const techs = [
-          { icon: 'server',      name: 'Node.js + Express',  desc: 'Fast, minimalist web server',         color: 'from-green-600/30 to-green-600/5',  border: 'border-green-500/20', text: 'text-green-400' },
-          { icon: 'file-code',   name: 'EJS Templates',      desc: 'Server-side rendering engine',         color: 'from-yellow-600/30 to-yellow-600/5', border: 'border-yellow-500/20', text: 'text-yellow-400' },
-          { icon: 'database',    name: 'PostgreSQL',          desc: 'Robust relational database',           color: 'from-blue-600/30 to-blue-600/5',    border: 'border-blue-500/20',  text: 'text-blue-400' },
-          { icon: 'layers',      name: 'Prisma ORM',         desc: 'Type-safe database client',            color: 'from-indigo-600/30 to-indigo-600/5', border: 'border-indigo-500/20', text: 'text-indigo-400' },
-          { icon: 'palette',     name: 'Tailwind CSS 4',     desc: 'Utility-first CSS framework',          color: 'from-cyan-600/30 to-cyan-600/5',    border: 'border-cyan-500/20',  text: 'text-cyan-400' },
-          { icon: 'code',        name: 'Vanilla JavaScript', desc: 'Interactive client-side logic',        color: 'from-orange-600/30 to-orange-600/5', border: 'border-orange-500/20', text: 'text-orange-400' }
+          { icon: 'server',      name: 'Node.js + Express',  desc: 'Fast, minimalist web server' },
+          { icon: 'file-code',   name: 'EJS Templates',      desc: 'Server-side rendering engine' },
+          { icon: 'database',    name: 'PostgreSQL',          desc: 'Robust relational database' },
+          { icon: 'layers',      name: 'Prisma ORM',         desc: 'Type-safe database client' },
+          { icon: 'palette',     name: 'Tailwind CSS 4',     desc: 'Utility-first CSS framework' },
+          { icon: 'code',        name: 'Vanilla JavaScript', desc: 'Interactive client-side logic' }
         ];
       %>
       <% techs.forEach(t => { %>
-        <div class="glass glass-hover p-5 rounded-xl flex items-start gap-4">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br <%= t.color %> border <%= t.border %> flex items-center justify-center flex-shrink-0">
-            <i data-lucide="<%= t.icon %>" class="w-5 h-5 <%= t.text %>"></i>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:20px;display:flex;align-items:flex-start;gap:16px;transition:border-color var(--transition);" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="width:40px;height:40px;border-radius:8px;background:rgba(0,255,135,0.08);border:1px solid rgba(0,255,135,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="<%= t.icon %>" style="width:18px;height:18px;color:var(--neon);"></i>
           </div>
           <div>
-            <h3 class="font-semibold text-white text-sm mb-0.5"><%= t.name %></h3>
-            <p class="text-xs text-slate-500"><%= t.desc %></p>
+            <h3 style="font-weight:600;color:var(--text);font-size:14px;margin-bottom:2px;"><%= t.name %></h3>
+            <p style="font-size:12px;color:var(--muted2);"><%= t.desc %></p>
           </div>
         </div>
       <% }) %>
@@ -52,10 +52,10 @@
 <section class="py-16 px-4">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-2xl font-bold text-white text-center mb-10">
-      What's <span class="gradient-text">Included</span>
+      What's <span style="color:var(--neon);">Included</span>
     </h2>
 
-    <div class="glass p-8 rounded-2xl space-y-4">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:32px;">
       <%
         const features = [
           'Full CRUD for subscriptions (create, read, update, delete)',
@@ -65,20 +65,22 @@
           'Category-based organization with icons',
           'Status tracking: active, paused, cancelled',
           'Next payment date auto-calculation',
-          'Responsive glassmorphism UI with dark theme',
+          'Responsive monochrome UI with dark theme',
           'Client-side form validation',
           'Flash notifications for user feedback',
-          'Session & authentication scaffold (ready for FR5)',
+          'Session & authentication support',
           'PostgreSQL database with Prisma ORM',
           '404 & 500 error pages'
         ];
       %>
-      <% features.forEach(f => { %>
-        <div class="flex items-center gap-3 text-slate-300 text-sm">
-          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
-          <%= f %>
-        </div>
-      <% }) %>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <% features.forEach(f => { %>
+          <div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;">
+            <i data-lucide="check-circle-2" style="width:16px;height:16px;color:var(--neon);flex-shrink:0;"></i>
+            <%= f %>
+          </div>
+        <% }) %>
+      </div>
     </div>
   </div>
 </section>
@@ -87,7 +89,7 @@
 <section class="py-16 px-4">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-2xl font-bold text-white text-center mb-10">
-      Frequently Asked <span class="gradient-text">Questions</span>
+      Frequently Asked <span style="color:var(--neon);">Questions</span>
     </h2>
 
     <div class="space-y-3">
@@ -107,7 +109,7 @@
           },
           {
             q: 'Can multiple users share the application?',
-            a: 'The authentication scaffold is included but auth enforcement is optional. Full multi-user support with role-based access control is planned for the next release (FR5).'
+            a: 'Yes. The app supports full multi-user authentication with role-based access control (admin / regular user).'
           },
           {
             q: 'How do I add test data to the database?',

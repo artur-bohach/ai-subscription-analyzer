@@ -30,7 +30,7 @@ const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, $
             <%= profileUser.username.charAt(0).toUpperCase() %>
           </div>
           <h2 class="text-xl font-bold text-white mt-4 text-center"><%= profileUser.username %></h2>
-          <p class="text-sm text-slate-500 text-center mt-1 truncate max-w-full px-4"><%= profileUser.email %></p>
+          <p style="font-size:13px;color:var(--muted2);text-align:center;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 16px;"><%= profileUser.email %></p>
           <div class="mt-3">
             <% if (profileUser.role === 'admin') { %>
               <span class="badge-admin">Administrator</span>
@@ -267,7 +267,7 @@ const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, $
               <option>GBP — British Pound</option>
               <option>PLN — Polish Zloty</option>
             </select>
-            <p class="text-xs text-slate-600 mt-1.5">Currency preferences — coming soon</p>
+            <p style="font-size:12px;color:var(--muted2);margin-top:6px;">Currency preferences — coming soon</p>
           </div>
 
           <!-- Notifications -->
@@ -283,13 +283,13 @@ const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, $
                 ['New subscription alerts', true],
               ].forEach(([label, checked]) => { %>
                 <label class="pf-toggle-row pf-toggle-disabled">
-                  <span class="text-sm text-slate-400"><%= label %></span>
+                  <span style="font-size:13px;color:var(--muted);"><%= label %></span>
                   <div class="pf-toggle <%= checked ? 'pf-toggle-on' : '' %>">
                     <span class="pf-toggle-knob"></span>
                   </div>
                 </label>
               <% }) %>
-              <p class="text-xs text-slate-600 mt-2">Notification settings — coming soon</p>
+              <p style="font-size:12px;color:var(--muted2);margin-top:8px;">Notification settings — coming soon</p>
             </div>
           </div>
 
@@ -328,8 +328,8 @@ const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, $
                 <i data-lucide="trash-2" class="w-5 h-5" style="color:var(--danger)"></i>
               </div>
               <div class="flex-1">
-                <p class="font-semibold text-slate-200 text-sm">Delete Account</p>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p style="font-weight:600;color:var(--text);font-size:13px;">Delete Account</p>
+                <p style="font-size:12px;color:var(--muted2);margin-top:4px;line-height:1.6;">
                   Permanently deletes your account and all <%= stats.subCount %> subscription(s) associated with it. This action cannot be undone.
                 </p>
               </div>
@@ -359,16 +359,16 @@ const avatarGradient = `linear-gradient(135deg, ${gradientPair.split(',')[0]}, $
       </div>
       <div>
         <h3 class="font-bold text-white">Delete Account</h3>
-        <p class="text-xs text-slate-500 mt-0.5">This action is permanent and cannot be undone</p>
+        <p style="font-size:12px;color:var(--muted2);margin-top:2px;">This action is permanent and cannot be undone</p>
       </div>
     </div>
 
     <!-- Warning -->
     <div class="pf-delete-warning mb-5">
-      <p class="text-sm text-slate-300">This will permanently delete:</p>
-      <ul class="text-sm text-slate-400 mt-2 space-y-1 list-disc list-inside">
-        <li>Your account (<strong class="text-slate-300"><%= profileUser.username %></strong>)</li>
-        <li>All <strong class="text-slate-300"><%= stats.subCount %></strong> subscription(s)</li>
+      <p style="font-size:13px;color:var(--muted);">This will permanently delete:</p>
+      <ul style="font-size:13px;color:var(--muted2);margin-top:8px;display:flex;flex-direction:column;gap:4px;list-style:disc;padding-left:16px;">
+        <li>Your account (<strong style="color:var(--muted);"><%= profileUser.username %></strong>)</li>
+        <li>All <strong style="color:var(--muted);"><%= stats.subCount %></strong> subscription(s)</li>
         <li>All associated data</li>
       </ul>
     </div>

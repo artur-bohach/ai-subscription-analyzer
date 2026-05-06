@@ -3,7 +3,7 @@
   <!-- Page header -->
   <div>
     <h1 class="text-2xl font-bold text-white">All Subscriptions</h1>
-    <p class="text-sm text-slate-500 mt-1"><%= subscriptions.length %> total across all users</p>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px;"><%= subscriptions.length %> total across all users</p>
   </div>
 
   <!-- Filters -->
@@ -11,8 +11,8 @@
     <div class="flex flex-wrap gap-3 items-end">
       <!-- User filter -->
       <div class="flex flex-col gap-1 min-w-[160px]">
-        <label class="text-xs text-slate-500 font-medium">Owner</label>
-        <select id="filter-user" class="form-input py-1.5 text-sm">
+        <label style="font-size:12px;color:var(--muted2);font-weight:500;">Owner</label>
+        <select id="filter-user" class="form-input" style="padding-top:6px;padding-bottom:6px;font-size:13px;">
           <option value="">All users</option>
           <% users.forEach(u => { %>
             <option value="<%= u.id %>"><%= u.username %></option>
@@ -22,8 +22,8 @@
 
       <!-- Category filter -->
       <div class="flex flex-col gap-1 min-w-[160px]">
-        <label class="text-xs text-slate-500 font-medium">Category</label>
-        <select id="filter-category" class="form-input py-1.5 text-sm">
+        <label style="font-size:12px;color:var(--muted2);font-weight:500;">Category</label>
+        <select id="filter-category" class="form-input" style="padding-top:6px;padding-bottom:6px;font-size:13px;">
           <option value="">All categories</option>
           <% categories.forEach(c => { %>
             <option value="<%= c %>"><%= c %></option>
@@ -33,10 +33,10 @@
 
       <!-- Search -->
       <div class="flex flex-col gap-1 flex-1 min-w-[180px]">
-        <label class="text-xs text-slate-500 font-medium">Search</label>
+        <label style="font-size:12px;color:var(--muted2);font-weight:500;">Search</label>
         <div class="relative">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
-          <input id="filter-search" type="text" placeholder="Service name…" class="form-input py-1.5 text-sm pl-9" />
+          <i data-lucide="search" style="width:16px;height:16px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;"></i>
+          <input id="filter-search" type="text" placeholder="Service name…" class="form-input" style="padding-top:6px;padding-bottom:6px;font-size:13px;padding-left:36px;" />
         </div>
       </div>
     </div>
@@ -75,25 +75,25 @@
               data-name="<%= s.name.toLowerCase() %>"
             >
               <td>
-                <p class="text-sm font-medium text-slate-200"><%= s.name %></p>
+                <p style="font-size:13px;font-weight:500;color:var(--text);"><%= s.name %></p>
               </td>
               <td>
-                <a href="/admin/users/<%= s.user.id %>" class="text-xs text-slate-400 hover:text-white transition-colors">
+                <a href="/admin/users/<%= s.user.id %>" style="font-size:12px;color:var(--muted2);text-decoration:none;transition:color var(--transition);" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">
                   <%= s.user.username %>
                 </a>
               </td>
-              <td class="text-xs text-slate-500"><%= s.category %></td>
-              <td class="text-right text-sm font-semibold text-slate-300">
+              <td style="font-size:12px;color:var(--muted2);"><%= s.category %></td>
+              <td style="text-align:right;font-size:13px;font-weight:600;color:var(--muted);">
                 <%= formatCurrency(s.cost, s.currency) %>
               </td>
-              <td class="text-right text-sm text-slate-400">
+              <td style="text-align:right;font-size:13px;color:var(--muted2);">
                 €<%= normalizeToMonthly(Number(s.cost), s.billingCycle).toFixed(2) %>
               </td>
-              <td class="text-xs text-slate-500 capitalize"><%= s.billingCycle %></td>
+              <td style="font-size:12px;color:var(--muted2);text-transform:capitalize;"><%= s.billingCycle %></td>
               <td>
-                <span class="badge badge-<%= s.status %>"><%= s.status %></span>
+                <span class="status-badge status-<%= s.status %>"><span class="status-dot"></span><%= s.status %></span>
               </td>
-              <td class="text-xs text-slate-500">
+              <td style="font-size:12px;color:var(--muted2);">
                 <%= s.nextPayment ? new Date(s.nextPayment).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—' %>
               </td>
             </tr>
@@ -101,14 +101,14 @@
         </tbody>
       </table>
 
-      <div id="subs-no-results" class="hidden text-center py-10 text-slate-500 text-sm">
+      <div id="subs-no-results" class="hidden" style="text-align:center;padding:40px 0;color:var(--muted2);font-size:13px;">
         No subscriptions match your filters.
       </div>
     </div>
 
     <!-- Footer count -->
-    <div class="px-4 py-3 border-t border-white/5 flex justify-between items-center text-xs text-slate-500">
-      <span id="subs-count"><%= subscriptions.length %> subscriptions</span>
+    <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <span id="subs-count" style="font-size:12px;color:var(--muted2);"><%= subscriptions.length %> subscriptions</span>
     </div>
   </div>
 </div>
