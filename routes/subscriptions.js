@@ -6,9 +6,7 @@ const router  = express.Router();
 const {
   getPrismaClient,
   normalizeToMonthly,
-  formatCurrency,
   calculateNextPayment,
-  getCategoryIcon,
 } = require('../utils/helpers');
 
 const { validateSubscription } = require('../utils/validators');
@@ -74,9 +72,6 @@ router.get('/', async (_req, res, next) => {
       monthlyTotal: monthlyTotal.toFixed(2),
       yearlyTotal:  (monthlyTotal * 12).toFixed(2),
       activeCount:  active.length,
-      formatCurrency,
-      getCategoryIcon,
-      normalizeToMonthly,
     });
   } catch (err) {
     next(err);
@@ -162,8 +157,6 @@ router.get('/:id', async (req, res, next) => {
       subscription,
       monthlyEquivalent: monthly.toFixed(2),
       yearlyEquivalent:  (monthly * 12).toFixed(2),
-      formatCurrency,
-      getCategoryIcon,
     });
   } catch (err) {
     next(err);

@@ -156,6 +156,18 @@ function formatDateDisplay(date) {
   });
 }
 
+// ─── Safe JSON serialization for inline <script> blocks ────────────────────────
+// JSON.stringify does NOT escape < > & by default, so a subscription name like
+// </script><script>alert(1) would break out of the script block (XSS).
+// This function escapes those characters to their unicode equivalents.
+function safeJson(obj) {
+  return JSON.stringify(obj)
+    .replace(/</g,  '\\u003c')
+    .replace(/>/g,  '\\u003e')
+    .replace(/&/g,  '\\u0026')
+    .replace(/'/g,  '\\u0027');
+}
+
 module.exports = {
   getPrismaClient,
   normalizeToMonthly,
@@ -164,5 +176,6 @@ module.exports = {
   getCategoryIcon,
   getStatusClasses,
   formatDateInput,
-  formatDateDisplay
+  formatDateDisplay,
+  safeJson,
 };
