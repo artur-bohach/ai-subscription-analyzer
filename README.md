@@ -1,152 +1,179 @@
-# AI Subscription Analyzer
+# SubTracker
 
-A modern web application for tracking and analyzing your recurring digital subscriptions, built with Node.js, Express, EJS, PostgreSQL and Prisma ORM.
+SubTracker is a dark fintech-style web app for tracking recurring subscriptions, understanding monthly and yearly spend, and managing user accounts. It is built as a university web development project and as a portfolio-ready Express/EJS application.
 
-## Features
+## Current Status
 
-- **Full CRUD** — create, view, edit and delete subscriptions
-- **Financial summary** — monthly/yearly totals calculated from all billing cycles
-- **Billing cycle normalization** — weekly, monthly and yearly costs compared apples-to-apples
-- **Multi-currency support** — EUR, USD, GBP and more
-- **Status tracking** — active, paused, cancelled with color-coded badges
-- **Next payment calculator** — auto-computes next due date from start date + cycle
-- **Category organization** — Entertainment, Productivity, AI Tools and more
-- **Glassmorphism dark UI** — modern SaaS-style design with Tailwind CSS
-- **Client-side validation** — real-time form feedback without page reloads
-- **Flash notifications** — toast-style success/error messages (auto-dismiss)
-- **Responsive design** — works on mobile, tablet and desktop
-- **Auth scaffold** — session + login/logout stub ready for FR5
+The project now covers FR1-FR5 core work:
+
+- Public pages: home, about, contact
+- Full subscription CRUD: list, details, create, edit, delete
+- Client-side and server-side validation for subscription forms
+- Session authentication with registration, login, logout, password hashing, and guest guards
+- Protected routes with user-scoped subscription data
+- Admin panel with user management, subscription overview, aggregate stats, and charts
+- User dashboard with Chart.js analytics, summary cards, upcoming payments, and spending breakdowns
+- Profile page with account details, profile update, password change, preferences UI, and account deletion
+- Custom 404/500 pages, flash messages, breadcrumbs, responsive navigation, and polished dark UI
+
+FR6, XML export and XSLT report generation, is the main remaining university requirement.
+
+## Recent Work Logged
+
+Since the older README version, the following work has been added:
+
+- Implemented FR5 authentication using `bcryptjs`, `express-session`, and route guards.
+- Added role-aware navigation and admin-only middleware.
+- Scoped subscriptions so regular users only access their own records.
+- Built the admin dashboard and user management screens.
+- Built the authenticated analytics dashboard with Chart.js.
+- Added the profile/settings page with password and account management flows.
+- Expanded seed data to include multiple realistic users and subscriptions.
+- Refined the visual system toward the current SubTracker dark theme.
+- Synced Prisma migrations with the current `User` schema and cascade delete behavior.
 
 ## Tech Stack
 
-| Layer          | Technology                        |
-|----------------|-----------------------------------|
-| Runtime        | Node.js                           |
-| Framework      | Express.js                        |
-| Templates      | EJS + express-ejs-layouts         |
-| Database       | PostgreSQL                        |
-| ORM            | Prisma                            |
-| Styling        | Tailwind CSS 4 (CDN)              |
-| Icons          | Lucide Icons (CDN)                |
-| Font           | Inter (Google Fonts)              |
-| Session        | express-session + connect-flash   |
-| Auth (stub)    | bcryptjs                          |
+| Layer | Technology |
+| --- | --- |
+| Runtime | Node.js |
+| Framework | Express.js |
+| Templates | EJS + express-ejs-layouts |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Styling | Tailwind CSS CDN + custom CSS |
+| Charts | Chart.js |
+| Auth | bcryptjs + express-session + connect-flash |
+| Icons | Lucide Icons |
+| Font | Inter |
 
 ## Project Structure
 
-```
+```text
 ai-subscription-analyzer/
-├── prisma/
-│   └── schema.prisma          # Database schema (User + Subscription)
-├── public/
-│   ├── css/styles.css         # Glassmorphism styles, animations
-│   └── js/validation.js       # Client-side validation & interactivity
-├── views/
-│   ├── layouts/main.ejs       # Root HTML layout (head, navbar, footer)
-│   ├── partials/
-│   │   ├── navbar.ejs         # Responsive navbar with active-link highlight
-│   │   ├── footer.ejs
-│   │   └── flash.ejs          # Toast notifications
-│   ├── home.ejs               # Landing page
-│   ├── about.ejs              # About + FAQ accordion
-│   ├── contact.ejs            # Contact form (UI only)
-│   ├── login.ejs              # Login page (FR5 stub)
-│   ├── error.ejs              # 404 / 500 error page
-│   └── subscriptions/
-│       ├── index.ejs          # Dashboard table with summary cards
-│       ├── show.ejs           # Subscription detail view
-│       ├── new.ejs            # Create form
-│       └── edit.ejs           # Edit form with danger zone
-├── routes/
-│   ├── index.js               # Public routes: /, /about, /contact
-│   ├── subscriptions.js       # CRUD routes: /subscriptions/*
-│   └── auth.js                # Auth routes: /login, /logout
+├── app.js
 ├── middleware/
-│   └── auth.js                # requireAuth / requireAdmin guards (stub)
+│   └── auth.js
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+├── public/
+│   ├── css/styles.css
+│   └── js/
+├── routes/
+│   ├── admin.js
+│   ├── auth.js
+│   ├── index.js
+│   ├── profile.js
+│   └── subscriptions.js
 ├── utils/
-│   └── helpers.js             # Prisma singleton + helper functions
-├── seed.js                    # Database seed script
-├── app.js                     # Express app entry point
-├── .env.example               # Environment variable template
-└── package.json
+│   ├── helpers.js
+│   └── validators.js
+├── views/
+│   ├── admin/
+│   ├── auth/
+│   ├── errors/
+│   ├── layouts/
+│   ├── partials/
+│   ├── subscriptions/
+│   ├── dashboard.ejs
+│   ├── home.ejs
+│   └── profile.ejs
+└── seed.js
 ```
 
 ## Getting Started
 
-### 1. Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### 2. Configure environment
+Create the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set your PostgreSQL connection string:
+Set your PostgreSQL connection in `.env`:
 
-```
+```env
 DATABASE_URL="postgresql://username:password@localhost:5432/ai_subscription_analyzer"
-SESSION_SECRET="your-random-secret-key"
+SESSION_SECRET="your-super-secret-session-key-change-this"
+PORT=3000
+NODE_ENV=development
 ```
 
-### 3. Run database migrations
+Run migrations and seed the database:
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate dev
+npm run seed
 ```
 
-### 4. Seed with sample data
+Start the app:
 
 ```bash
-node seed.js
+npm run dev
 ```
 
-This creates:
-- 1 admin user (`admin` / `admin123`)
-- 10 sample subscriptions across categories
+Open [http://localhost:3000](http://localhost:3000).
 
-### 5. Start the server
+## Demo Credentials
 
-```bash
-npm start        # production
-npm run dev      # development (with nodemon auto-reload)
-```
+| Role | Username | Email | Password |
+| --- | --- | --- | --- |
+| Admin | `admin` | `admin@subtracker.app` | `admin123` |
+| User | `testuser` | `user@example.com` | `user123` |
+| User | `demo` | `demo@example.com` | `demo123` |
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+The seed script also creates several additional demo users with realistic subscription data.
 
-## Default Credentials
+## Main Routes
 
-| Username | Password  |
-|----------|-----------|
-| `admin`  | `admin123`|
+| Method | Route | Description |
+| --- | --- | --- |
+| GET | `/` | Landing page |
+| GET | `/about` | About page |
+| GET | `/contact` | Contact page |
+| GET | `/register` | Registration page |
+| POST | `/register` | Create account |
+| GET | `/login` | Login page |
+| POST | `/login` | Create session |
+| POST | `/logout` | Destroy session |
+| GET | `/dashboard` | User analytics dashboard |
+| GET | `/subscriptions` | User subscription list |
+| GET | `/subscriptions/new` | New subscription form |
+| POST | `/subscriptions` | Create subscription |
+| GET | `/subscriptions/:id` | Subscription details |
+| GET | `/subscriptions/:id/edit` | Edit subscription form |
+| PUT | `/subscriptions/:id` | Update subscription |
+| DELETE | `/subscriptions/:id` | Delete subscription |
+| GET | `/profile` | Profile and settings |
+| POST | `/profile` | Update profile |
+| POST | `/profile/password` | Change password |
+| DELETE | `/profile` | Delete account |
+| GET | `/admin` | Admin dashboard |
+| GET | `/admin/users` | User management |
+| GET | `/admin/users/:id` | User details |
+| DELETE | `/admin/users/:id` | Delete user |
+| GET | `/admin/subscriptions` | All subscriptions overview |
 
-## Implemented Requirements
+## Requirement Progress
 
-| ID  | Feature                                      | Status |
-|-----|----------------------------------------------|--------|
-| FR1 | Public pages: Home, About, Contact           | ✅     |
-| FR2 | CRUD for subscriptions                       | ✅     |
-| FR3 | Glassmorphism dark UI + responsive design    | ✅     |
-| FR4 | Financial calculations (monthly/yearly)      | ✅     |
-| FR5 | Auth scaffold (login/session stub)           | 🔶 stub|
+| Requirement | Status |
+| --- | --- |
+| FR1: Public pages | Done |
+| FR2: Subscription CRUD | Done |
+| FR3: Validation and error handling | Mostly done |
+| FR4: Routing, layout polish, flash messages, 404/500 | Done |
+| FR5: Auth, admin, dashboard, profile | Mostly done |
+| FR6: XML export + XSLT report | Not started |
 
-## Available Routes
+## Notes
 
-| Method | Route                          | Description              |
-|--------|--------------------------------|--------------------------|
-| GET    | `/`                            | Home / landing page      |
-| GET    | `/about`                       | About page + FAQ         |
-| GET    | `/contact`                     | Contact form             |
-| GET    | `/login`                       | Login page               |
-| POST   | `/login`                       | Process login            |
-| POST   | `/logout`                      | Logout                   |
-| GET    | `/subscriptions`               | List all subscriptions   |
-| GET    | `/subscriptions/new`           | New subscription form    |
-| POST   | `/subscriptions`               | Create subscription      |
-| GET    | `/subscriptions/:id`           | View subscription        |
-| GET    | `/subscriptions/:id/edit`      | Edit subscription form   |
-| PUT    | `/subscriptions/:id`           | Update subscription      |
-| DELETE | `/subscriptions/:id`           | Delete subscription      |
+- EJS templates must not use `require()`. Shared helpers are exposed through `app.locals` in `app.js`.
+- HTML forms use `method-override` for PUT and DELETE requests.
+- Prisma Client is accessed through the singleton helper in `utils/helpers.js`.
+- `.env`, `node_modules`, virtual environments, and local Claude settings are ignored by git.

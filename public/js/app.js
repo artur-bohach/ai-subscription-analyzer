@@ -123,39 +123,13 @@ function initMobileMenu() {
   });
 }
 
-/* ── User dropdown ──────────────────────────────────────────────────────── */
-function initUserDropdown() {
-  const wrap = document.getElementById('user-dropdown-wrap');
-  const trigger = document.getElementById('user-dropdown-btn');
-  const dropMenu = document.getElementById('user-dropdown-menu');
-  if (!wrap || !trigger || !dropMenu) return;
-
-  trigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = wrap.classList.toggle('open');
-    trigger.setAttribute('aria-expanded', open);
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!wrap.contains(e.target)) {
-      wrap.classList.remove('open');
-      trigger.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      wrap.classList.remove('open');
-      trigger.setAttribute('aria-expanded', 'false');
-    }
-  });
-}
+/* User dropdown is now wired inline in views/partials/navbar.ejs to avoid
+   load-order issues with Lucide icon replacement. */
 
 /* ── Init ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initMobileMenu();
-  initUserDropdown();
   initBlob();
   initCountUp();
   initTilt();

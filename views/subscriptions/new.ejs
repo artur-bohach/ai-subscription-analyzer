@@ -1,6 +1,6 @@
 <%
   const today = formatDateInput(new Date());
-  const fe    = fieldErrors || {};   // shorthand — avoids repetition below
+  const fe    = fieldErrors || {};
 
   const categories = [
     'Entertainment', 'Productivity', 'Education',
@@ -14,34 +14,35 @@
   const errorCount = Object.keys(fe).length;
 %>
 
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="page-wrap" style="max-width:680px;">
 
   <!-- Page Title -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-      <i data-lucide="plus-circle" class="w-6 h-6 text-purple-400"></i>
-      Add New Subscription
-    </h1>
-    <p class="text-slate-500 text-sm mt-1">Fill in the details of your subscription below.</p>
+  <div style="margin-bottom:32px;">
+    <div class="page-header-row">
+      <div>
+        <h1 class="page-title">Add New Subscription</h1>
+        <p class="page-sub">Fill in the details of your subscription below.</p>
+      </div>
+    </div>
   </div>
 
   <!-- Server-side error summary banner -->
   <% if (errorCount > 0) { %>
-    <div class="glass border border-red-500/30 rounded-xl p-4 mb-6 flex gap-3" role="alert">
-      <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"></i>
-      <p class="text-sm font-semibold text-red-400">
+    <div style="background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:16px;margin-bottom:24px;display:flex;gap:12px;" role="alert">
+      <i data-lucide="alert-circle" style="width:20px;height:20px;color:var(--danger);flex-shrink:0;margin-top:2px;"></i>
+      <p style="font-size:14px;font-weight:600;color:var(--danger);">
         Please fix <%= errorCount %> error<%= errorCount !== 1 ? 's' : '' %> below before continuing.
       </p>
     </div>
   <% } %>
 
   <!-- Form Card -->
-  <div class="glass rounded-2xl p-8">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:32px;">
     <form id="subscription-form" action="/subscriptions" method="POST" novalidate>
 
       <!-- Name -->
       <div class="mb-5">
-        <label for="name" class="form-label">Service Name <span class="text-red-400">*</span></label>
+        <label for="name" class="form-label">Service Name <span style="color:var(--danger);">*</span></label>
         <input
           id="name" name="name" type="text"
           class="form-input <%= fe.name ? 'is-error' : '' %>"
@@ -55,7 +56,7 @@
       <!-- Category + Currency -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="category" class="form-label">Category <span class="text-red-400">*</span></label>
+          <label for="category" class="form-label">Category <span style="color:var(--danger);">*</span></label>
           <select id="category" name="category" class="form-input <%= fe.category ? 'is-error' : '' %>" required>
             <option value="">— Select category —</option>
             <% categories.forEach(cat => { %>
@@ -77,7 +78,7 @@
       <!-- Cost + Billing Cycle -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="cost" class="form-label">Cost <span class="text-red-400">*</span></label>
+          <label for="cost" class="form-label">Cost <span style="color:var(--danger);">*</span></label>
           <input
             id="cost" name="cost" type="number"
             class="form-input <%= fe.cost ? 'is-error' : '' %>"
@@ -88,7 +89,7 @@
           <% if (fe.cost) { %><p class="field-error-msg show">⚠ <%= fe.cost %></p><% } %>
         </div>
         <div>
-          <label for="billingCycle" class="form-label">Billing Cycle <span class="text-red-400">*</span></label>
+          <label for="billingCycle" class="form-label">Billing Cycle <span style="color:var(--danger);">*</span></label>
           <select id="billingCycle" name="billingCycle" class="form-input <%= fe.billingCycle ? 'is-error' : '' %>" required>
             <option value="">— Select cycle —</option>
             <% cycles.forEach(c => { %>
@@ -102,7 +103,7 @@
       <!-- Start Date + Status -->
       <div class="grid sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label for="startDate" class="form-label">Start Date <span class="text-red-400">*</span></label>
+          <label for="startDate" class="form-label">Start Date <span style="color:var(--danger);">*</span></label>
           <input
             id="startDate" name="startDate" type="date"
             class="form-input <%= fe.startDate ? 'is-error' : '' %>"
@@ -124,7 +125,7 @@
 
       <!-- Notes -->
       <div class="mb-8">
-        <label for="notes" class="form-label">Notes <span class="text-slate-600">(optional)</span></label>
+        <label for="notes" class="form-label">Notes <span style="color:var(--muted2);font-weight:400;">(optional)</span></label>
         <textarea
           id="notes" name="notes"
           rows="3"
@@ -136,11 +137,11 @@
 
       <!-- Submit -->
       <div class="flex gap-4">
-        <button type="submit" class="btn-primary flex-1 justify-center py-3">
+        <button type="submit" class="btn-primary flex-1 justify-center" style="padding:12px;">
           <i data-lucide="save" class="w-4 h-4"></i>
           Save Subscription
         </button>
-        <a href="/subscriptions" class="btn-ghost py-3 px-6">Cancel</a>
+        <a href="/subscriptions" class="btn-ghost" style="padding:12px 24px;">Cancel</a>
       </div>
     </form>
   </div>

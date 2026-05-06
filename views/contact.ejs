@@ -1,14 +1,14 @@
 <!-- ── Contact Header ─────────────────────────────────────────────────────── -->
 <section class="pt-16 pb-8 px-4">
   <div class="max-w-2xl mx-auto text-center">
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[var(--border2)] text-sm font-medium" style="color:var(--muted) mb-6">
-      <i data-lucide="mail" class="w-4 h-4"></i>
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;background:var(--card);border:1px solid var(--border2);font-size:13px;color:var(--muted);font-weight:500;margin-bottom:24px;">
+      <i data-lucide="mail" class="w-4 h-4" style="color:var(--neon);"></i>
       Get In Touch
     </div>
     <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
-      Contact <span class="gradient-text">Us</span>
+      Contact <span style="color:var(--neon);">Us</span>
     </h1>
-    <p class="text-slate-400 text-lg">
+    <p style="color:var(--muted);font-size:18px;">
       Have a question or feedback? We'd love to hear from you.
     </p>
   </div>
@@ -17,7 +17,7 @@
 <!-- ── Contact Form ───────────────────────────────────────────────────────── -->
 <section class="py-12 px-4">
   <div class="max-w-2xl mx-auto">
-    <div class="glass rounded-2xl p-8">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:32px;">
 
       <!-- ── The Form (UI only — validated client-side, no server submit) ── -->
       <form id="contact-form" novalidate autocomplete="off">
@@ -27,7 +27,7 @@
           <!-- Name -->
           <div>
             <label for="contact-name" class="form-label">
-              Full Name <span class="text-red-400">*</span>
+              Full Name <span style="color:var(--danger);">*</span>
             </label>
             <input
               id="contact-name"
@@ -43,7 +43,7 @@
           <!-- Email -->
           <div>
             <label for="contact-email" class="form-label">
-              Email Address <span class="text-red-400">*</span>
+              Email Address <span style="color:var(--danger);">*</span>
             </label>
             <input
               id="contact-email"
@@ -56,10 +56,10 @@
           </div>
         </div>
 
-        <!-- Subject — text input (min 3 chars, validated by JS) -->
+        <!-- Subject -->
         <div class="mb-5">
           <label for="contact-subject" class="form-label">
-            Subject <span class="text-red-400">*</span>
+            Subject <span style="color:var(--danger);">*</span>
           </label>
           <input
             id="contact-subject"
@@ -74,8 +74,8 @@
         <!-- Message with character counter injected by JS -->
         <div class="mb-6">
           <label for="contact-message" class="form-label">
-            Message <span class="text-red-400">*</span>
-            <span class="text-slate-600 font-normal">(min 10 characters)</span>
+            Message <span style="color:var(--danger);">*</span>
+            <span style="color:var(--muted2);font-weight:400;">(min 10 characters)</span>
           </label>
           <textarea
             id="contact-message"
@@ -84,10 +84,9 @@
             class="form-input resize-none"
             placeholder="Write your message here…"
           ></textarea>
-          <!-- .char-counter injected here by JS -->
         </div>
 
-        <button type="submit" class="btn-primary w-full justify-center" style="font-size:15px;padding:11px">
+        <button type="submit" class="btn-primary w-full justify-center" style="font-size:15px;padding:11px;">
           <i data-lucide="send" class="w-5 h-5"></i>
           Send Message
         </button>
@@ -98,32 +97,27 @@
 
         <!-- Animated SVG checkmark -->
         <svg class="checkmark-svg" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- Faint background circle -->
           <circle class="ck-bg" cx="36" cy="36" r="34"/>
-          <!-- Animated ring outline -->
           <circle class="ck-ring" cx="36" cy="36" r="33"/>
-          <!-- Animated tick path -->
           <path class="ck-check" d="M20 36 L30 46 L52 24"/>
         </svg>
 
         <div>
           <h3 class="text-2xl font-bold text-white mb-2">Message Sent!</h3>
-          <p class="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
+          <p style="color:var(--muted);font-size:14px;max-width:280px;margin:0 auto;line-height:1.6;">
             Thank you for reaching out. We'll get back to you as soon as possible.
           </p>
         </div>
 
-        <!-- Tags summarizing what was sent -->
         <div class="flex flex-wrap justify-center gap-2 text-xs">
-          <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <span style="padding:4px 12px;border-radius:20px;background:rgba(0,255,135,0.08);border:1px solid rgba(0,255,135,0.2);color:var(--neon);">
             <i data-lucide="check" class="w-3 h-3 inline-block mr-1"></i>Received
           </span>
-          <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <span style="padding:4px 12px;border-radius:20px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warn);">
             <i data-lucide="clock" class="w-3 h-3 inline-block mr-1"></i>Reply within 24h
           </span>
         </div>
 
-        <!-- Reset button — calls window.resetContactForm() exposed by validation.js -->
         <button
           type="button"
           onclick="window.resetContactForm()"
@@ -134,24 +128,24 @@
         </button>
       </div>
 
-    </div><!-- /.glass -->
+    </div>
 
     <!-- ── Info Cards ─────────────────────────────────────────────────────── -->
     <div class="grid sm:grid-cols-3 gap-4 mt-8">
-      <div class="glass p-5 rounded-xl text-center">
-        <i data-lucide="github" class="w-6 h-6 text-slate-400 mx-auto mb-2"></i>
-        <p class="text-sm font-medium text-white">GitHub</p>
-        <p class="text-xs text-slate-500 mt-1">Open an issue</p>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:20px;text-align:center;">
+        <i data-lucide="github" style="width:24px;height:24px;color:var(--muted);margin:0 auto 8px;display:block;"></i>
+        <p style="font-size:14px;font-weight:500;color:var(--text);">GitHub</p>
+        <p style="font-size:12px;color:var(--muted2);margin-top:4px;">Open an issue</p>
       </div>
-      <div class="glass p-5 rounded-xl text-center">
-        <i data-lucide="book-open" class="w-6 h-6 text-purple-400 mx-auto mb-2"></i>
-        <p class="text-sm font-medium text-white">Docs</p>
-        <p class="text-xs text-slate-500 mt-1">Read the README</p>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:20px;text-align:center;">
+        <i data-lucide="book-open" style="width:24px;height:24px;color:var(--neon);margin:0 auto 8px;display:block;"></i>
+        <p style="font-size:14px;font-weight:500;color:var(--text);">Docs</p>
+        <p style="font-size:12px;color:var(--muted2);margin-top:4px;">Read the README</p>
       </div>
-      <div class="glass p-5 rounded-xl text-center">
-        <i data-lucide="zap" class="w-6 h-6 text-yellow-400 mx-auto mb-2"></i>
-        <p class="text-sm font-medium text-white">Quick Start</p>
-        <p class="text-xs text-slate-500 mt-1">Get up in minutes</p>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:20px;text-align:center;">
+        <i data-lucide="zap" style="width:24px;height:24px;color:var(--warn);margin:0 auto 8px;display:block;"></i>
+        <p style="font-size:14px;font-weight:500;color:var(--text);">Quick Start</p>
+        <p style="font-size:12px;color:var(--muted2);margin-top:4px;">Get up in minutes</p>
       </div>
     </div>
 
