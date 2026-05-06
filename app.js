@@ -1,5 +1,11 @@
 require('dotenv').config();
 
+// ─── Fail fast on missing critical env vars in production ───────────────────────
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is required in production.');
+  process.exit(1);
+}
+
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
@@ -19,6 +25,7 @@ app.locals.formatCurrency     = helpers.formatCurrency;
 app.locals.normalizeToMonthly = helpers.normalizeToMonthly;
 app.locals.getCategoryIcon    = helpers.getCategoryIcon;
 app.locals.getStatusClasses   = helpers.getStatusClasses;
+app.locals.safeJson           = helpers.safeJson;
 
 // ─── View Engine ───────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
@@ -70,12 +77,14 @@ const subscriptionRoutes = require('./routes/subscriptions');
 const authRoutes         = require('./routes/auth');
 const adminRoutes        = require('./routes/admin');
 const profileRoutes      = require('./routes/profile');
+const settingsRoutes     = require('./routes/settings');
 
 app.use('/', indexRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/profile', profileRoutes);
+app.use('/settings', settingsRoutes);
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {

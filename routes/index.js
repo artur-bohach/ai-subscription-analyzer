@@ -40,13 +40,14 @@ router.get('/dashboard', isAuthenticated, async (req, res, next) => {
       orderBy: { createdAt: 'asc' },
     });
 
-    const active    = subscriptions.filter(s => s.status === 'active');
-    const inactive  = subscriptions.filter(s => s.status !== 'active');
+    const active  = subscriptions.filter(s => s.status === 'active');
+    const paused  = subscriptions.filter(s => s.status === 'paused');
 
     // ── Summary stats ──────────────────────────────────────────────────────────
     const monthlyTotal = active.reduce((sum, s) => sum + normalizeToMonthly(Number(s.cost), s.billingCycle), 0);
     const yearlyTotal  = monthlyTotal * 12;
-    const potentialSavings = inactive.reduce((sum, s) => sum + normalizeToMonthly(Number(s.cost), s.billingCycle), 0);
+    // Only paused subscriptions are "potential savings" — cancelled are already gone
+    const potentialSavings = paused.reduce((sum, s) => sum + normalizeToMonthly(Number(s.cost), s.billingCycle), 0);
 
     // ── Doughnut: spending by category ────────────────────────────────────────
     const catMap = {};
@@ -92,10 +93,10 @@ router.get('/dashboard', isAuthenticated, async (req, res, next) => {
     const lineLabels  = months.map(d => d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
     const lineAmounts = months.map(month => {
       const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59);
-      const activeThen = subscriptions.filter(s => {
-        const start = new Date(s.startDate);
-        return start <= monthEnd && s.status !== 'cancelled';
-      });
+      // Include every subscription that had started by the end of this month.
+      // We use startDate only — we don't store cancelledAt, so current status
+      // would silently erase spending history for since-cancelled subscriptions.
+      const activeThen = subscriptions.filter(s => new Date(s.startDate) <= monthEnd);
       return parseFloat(activeThen.reduce((sum, s) => sum + normalizeToMonthly(Number(s.cost), s.billingCycle), 0).toFixed(2));
     });
     const lineChartData = { labels: lineLabels, amounts: lineAmounts };
@@ -106,7 +107,13 @@ router.get('/dashboard', isAuthenticated, async (req, res, next) => {
 
     const upcomingPayments = active
       .map(s => {
-        let next = s.nextPayment ? new Date(s.nextPayment) : calculateNextPayment(new Date(s.startDate), s.billingCycle);
+        // nextPayment stored in DB is set at creation time and never auto-updated.
+        // After one billing cycle passes that date becomes stale (in the past).
+        // Always recalculate to guarantee a future date.
+        const stored = s.nextPayment ? new Date(s.nextPayment) : null;
+        const next = (stored && stored > now)
+          ? stored
+          : calculateNextPayment(new Date(s.startDate), s.billingCycle);
         return { ...s, computedNext: next, costNum: Number(s.cost) };
       })
       .sort((a, b) => a.computedNext - b.computedNext)

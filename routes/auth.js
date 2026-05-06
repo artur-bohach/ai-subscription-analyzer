@@ -1,14 +1,25 @@
 'use strict';
 
-const express  = require('express');
-const router   = express.Router();
-const bcrypt   = require('bcryptjs');
+const express    = require('express');
+const router     = express.Router();
+const bcrypt     = require('bcryptjs');
+const rateLimit  = require('express-rate-limit');
 const { getPrismaClient } = require('../utils/helpers');
 const { isGuest }          = require('../middleware/auth');
 
 const prisma      = getPrismaClient();
 const SALT_ROUNDS = 12;
 const EMAIL_RE    = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+// 10 attempts per 15 minutes per IP — applies to login and register
+const authLimiter = rateLimit({
+  windowMs:         15 * 60 * 1000, // 15 minutes
+  max:              10,
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          'Too many attempts from this IP. Please try again in 15 minutes.',
+  skipSuccessfulRequests: true,      // only failed attempts count toward the limit
+});
 
 // ── GET /register ──────────────────────────────────────────────────────────────
 router.get('/register', isGuest, (_req, res) => {
@@ -21,7 +32,7 @@ router.get('/register', isGuest, (_req, res) => {
 });
 
 // ── POST /register ─────────────────────────────────────────────────────────────
-router.post('/register', isGuest, async (req, res, next) => {
+router.post('/register', authLimiter, isGuest, async (req, res, next) => {
   const { username, email, password, confirmPassword } = req.body;
   const formData    = { username: (username || '').trim(), email: (email || '').trim() };
   const fieldErrors = {};
@@ -107,7 +118,7 @@ router.get('/login', isGuest, (_req, res) => {
 });
 
 // ── POST /login ────────────────────────────────────────────────────────────────
-router.post('/login', isGuest, async (req, res, next) => {
+router.post('/login', authLimiter, isGuest, async (req, res, next) => {
   const { identifier, password } = req.body;
   const formData = { identifier: (identifier || '').trim() };
 
@@ -142,8 +153,14 @@ router.post('/login', isGuest, async (req, res, next) => {
     // Set session
     req.session.userId = user.id;
 
-    // Redirect to saved returnTo URL or default
-    const returnTo = req.session.returnTo || '/dashboard';
+    // Extend cookie lifetime to 30 days if "remember me" is checked
+    if (req.body.rememberMe) {
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+    }
+
+    // Redirect to saved returnTo URL — validate it's a local path to prevent open redirect
+    const raw = req.session.returnTo || '';
+    const returnTo = (raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/dashboard';
     delete req.session.returnTo;
 
     req.flash('success', `Welcome back, ${user.username}!`);

@@ -65,7 +65,10 @@
             </a>
             <div class="nav-dropdown-divider"></div>
             <a href="/profile" class="nav-dropdown-item">
-              <i data-lucide="user" class="w-4 h-4"></i> Profile & Settings
+              <i data-lucide="user" class="w-4 h-4"></i> Profile
+            </a>
+            <a href="/settings" class="nav-dropdown-item <%= currentPath.startsWith('/settings') ? 'active' : '' %>">
+              <i data-lucide="settings-2" class="w-4 h-4"></i> Settings
             </a>
             <div class="nav-dropdown-divider"></div>
             <form action="/logout" method="POST" class="m-0">
@@ -115,6 +118,9 @@
         </div>
         <a href="/profile" class="btn-ghost text-sm justify-center">
           <i data-lucide="user" class="w-3.5 h-3.5"></i> Profile
+        </a>
+        <a href="/settings" class="btn-ghost text-sm justify-center">
+          <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Settings
         </a>
         <form action="/logout" method="POST" class="m-0">
           <button type="submit" class="btn-ghost text-sm w-full justify-center" style="border-color:var(--danger);color:var(--danger)">

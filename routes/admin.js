@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router  = express.Router();
-const { getPrismaClient, normalizeToMonthly, formatCurrency } = require('../utils/helpers');
+const { getPrismaClient, normalizeToMonthly } = require('../utils/helpers');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const prisma = getPrismaClient();
 
@@ -71,7 +71,6 @@ router.get('/', async (req, res, next) => {
       subBuckets,
       recentUsers,
       recentSubs,
-      formatCurrency
     });
   } catch (err) { next(err); }
 });
@@ -95,7 +94,6 @@ router.get('/users', async (req, res, next) => {
       layout: 'layouts/admin',
       title: 'User Management',
       users: usersWithStats,
-      formatCurrency
     });
   } catch (err) { next(err); }
 });
@@ -122,7 +120,6 @@ router.get('/users/:id', async (req, res, next) => {
       title: `User: ${user.username}`,
       user,
       stats: { monthlyTotal, yearlyTotal, subCount: user.subscriptions.length },
-      formatCurrency
     });
   } catch (err) { next(err); }
 });
@@ -168,8 +165,6 @@ router.get('/subscriptions', async (req, res, next) => {
       subscriptions,
       users,
       categories,
-      formatCurrency,
-      normalizeToMonthly
     });
   } catch (err) { next(err); }
 });
